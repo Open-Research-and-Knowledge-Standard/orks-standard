@@ -1,5 +1,8 @@
 # Informative Documentation
 
+- Classification: Informative
+- Status: Living index
+
 ## Classification
 
 Documents in this directory explain ORKS concepts, rationale, navigation, and
@@ -10,6 +13,12 @@ the normative text is authoritative.
 Informative examples illustrate concepts only. An example creates a
 conformance obligation only when approved normative text explicitly gives it
 that role.
+
+## Documents
+
+- [ORKS-0101 traceability](orks-0101-traceability.md) maps the draft language,
+  versioning, identifier, and glossary rules to examples and later conformance
+  obligations.
 
 ## Architecture Decision Ownership
 

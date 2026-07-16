@@ -1,12 +1,22 @@
 # Normative Documentation
 
+- Classification: Informative
+- Status: Living index
+
 ## Classification
 
-This directory is the home of approved normative ORKS specification text.
-This README is informative repository guidance and does not define ORKS
-requirements.
+This directory is the home of normative ORKS specification text. This README
+is an informative index and does not define ORKS requirements.
 
-The current repository foundation contains no normative rules.
+ORKS-0101 draft material targets specification version `0.1.0`. Draft status
+does not claim a released ORKS specification or released conformance.
+
+## Draft Specification Documents
+
+- [Controlled glossary](glossary.md)
+- [Normative language](language.md)
+- [Specification versioning](versioning.md)
+- [Specification trace identifiers](identifiers.md)
 
 ## Content Boundary
 
@@ -21,3 +31,7 @@ Normative documents are self-contained public contracts. They may identify a
 relevant accepted architecture decision by stable identifier, but they do not
 depend on private planning content, external formats, tools, models, or
 conversation history for their authority.
+
+Adam accepted planning decision `0010` and this ORKS-0101 draft baseline on
+2026-07-16. The documents remain draft material targeting specification
+version `0.1.0`; acceptance does not create a released ORKS specification.
