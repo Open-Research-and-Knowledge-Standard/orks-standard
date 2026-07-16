@@ -6,9 +6,9 @@ knowledge.
 
 ## Repository Status
 
-This repository currently contains the public documentation and ownership
-foundation for the ORKS specification. It does not yet contain a released
-ORKS specification or substantive normative requirements.
+This repository contains the public documentation foundation and the ORKS-0101
+draft normative-language baseline targeting specification version `0.1.0`. It
+does not yet contain a released ORKS specification.
 
 ## Repository Scope
 
@@ -23,8 +23,8 @@ repository.
 
 ## Documentation
 
-- [Normative documentation](docs/normative/README.md) is the future home of
-  the portable ORKS contract.
+- [Normative documentation](docs/normative/README.md) contains the draft and
+  will index any future released portable ORKS contract.
 - [Informative documentation](docs/informative/README.md) provides navigation,
   rationale, and the architecture-decision ownership boundary without
   creating conformance requirements.
