@@ -19,6 +19,9 @@ that role.
 - [ORKS-0101 traceability](orks-0101-traceability.md) maps the draft language,
   versioning, identifier, and glossary rules to examples and later conformance
   obligations.
+- [ORKS-0102 traceability](orks-0102-traceability.md) maps the accepted bundle,
+  path, resource, and negotiation rules to examples and later conformance
+  obligations.
 
 ## Architecture Decision Ownership
 
