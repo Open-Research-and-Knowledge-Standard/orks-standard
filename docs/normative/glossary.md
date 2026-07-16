@@ -135,7 +135,8 @@ a second meaning.
 - Permitted aliases: none
 - Status: Accepted
 - Definition: Import metadata and options supplied for source acquisition and
-  extraction. Its normative fields remain ORKS-0102 work.
+  extraction. Its field contract is outside ORKS-0102 and remains later
+  source-ingestion work.
 - Disallowed aliases: bundle manifest; source object
 
 ## ORKS-TERM-000012
@@ -308,8 +309,9 @@ a second meaning.
 - Preferred term: bundle
 - Permitted aliases: ORKS bundle
 - Status: Accepted
-- Definition: A portable bounded collection of ORKS artifacts. Layout,
-  manifest, and negotiation semantics remain ORKS-0102 work.
+- Definition: A portable bounded directory collection of ORKS artifacts whose
+  descriptor, entry, path, resource, and negotiation semantics are defined by
+  the ORKS bundle contract.
 - Disallowed aliases: repository; archive
 
 ## ORKS-TERM-000031
@@ -366,6 +368,81 @@ a second meaning.
 - Definition: The selected JSON Schema specification generation for future
   ORKS conformance schemas.
 - Disallowed aliases: JSON Schema draft 2020-12; ORKS schema version
+
+## ORKS-TERM-000038
+
+- Preferred term: bundle descriptor
+- Permitted aliases: none
+- Status: Accepted
+- Definition: The `orks-bundle.json` root document that inventories bundle
+  entries and declares version-negotiation inputs.
+- Disallowed aliases: bundle manifest; source manifest
+
+## ORKS-TERM-000039
+
+- Preferred term: bundle entry
+- Permitted aliases: entry, when the bundle context is explicit
+- Status: Accepted
+- Definition: One regular file below a bundle's `entries` directory that is
+  inventoried exactly once by the bundle descriptor.
+- Disallowed aliases: archive entry; source object
+
+## ORKS-TERM-000040
+
+- Preferred term: portable path
+- Permitted aliases: entry path, when the bundle context is explicit
+- Status: Accepted
+- Definition: The bounded lowercase ASCII `/`-separated path recorded relative
+  to a bundle's `entries` directory.
+- Disallowed aliases: filesystem path; host path
+
+## ORKS-TERM-000041
+
+- Preferred term: feature identifier
+- Permitted aliases: feature ID
+- Status: Accepted
+- Definition: A lowercase ASCII dotted name used only to identify a negotiated
+  bundle feature.
+- Disallowed aliases: extension namespace; network location
+
+## ORKS-TERM-000042
+
+- Preferred term: feature version
+- Permitted aliases: none
+- Status: Accepted
+- Definition: The exact semantic version paired with one feature identifier
+  for negotiation.
+- Disallowed aliases: specification version; compatibility range
+
+## ORKS-TERM-000043
+
+- Preferred term: bundle processing outcome
+- Permitted aliases: none
+- Status: Accepted
+- Definition: The explicit `invalid`, `unsupported`, `resource refusal`, or
+  `ready` terminal result of the ordered structural-validation, exact-
+  negotiation, installation-policy, and entry-streaming phases.
+- Disallowed aliases: compatibility promise; migration result
+
+## ORKS-TERM-000044
+
+- Preferred term: resource refusal
+- Permitted aliases: none
+- Status: Accepted
+- Definition: A processing outcome reporting that finite installation policy
+  stopped entry-content processing after exact negotiation, including a policy
+  stop during streaming when no structural failure has been observed.
+- Disallowed aliases: invalid bundle; nonconformance
+
+## ORKS-TERM-000045
+
+- Preferred term: bundle processor
+- Permitted aliases: processor, when the bundle context is explicit
+- Status: Accepted
+- Definition: An implementation component that validates a bundle's structure,
+  applies resource policy, performs exact negotiation, and reports one bundle
+  processing outcome.
+- Disallowed aliases: archive extractor; semantic validator
 
 ## Reserved Terms
 

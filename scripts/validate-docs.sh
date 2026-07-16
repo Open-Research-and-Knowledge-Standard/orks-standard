@@ -32,7 +32,9 @@ REQUIRED_PATHS=(
   README.md
   docs/informative/README.md
   docs/informative/orks-0101-traceability.md
+  docs/informative/orks-0102-traceability.md
   docs/normative/README.md
+  docs/normative/bundles.md
   docs/normative/glossary.md
   docs/normative/identifiers.md
   docs/normative/language.md
@@ -220,19 +222,29 @@ done < <(
     -type f -print0
 )
 
-printf '6. ORKS-0101 structure and traceability\n'
+printf '6. Normative suite structure and traceability\n'
 
 mapfile -d '' -t NORMATIVE_DOCS < <(
   find "$REPO_ROOT/docs/normative" \
     -type f -name '*.md' ! -name README.md -print0 |
     sort -z
 )
-TRACEABILITY_DOC="$REPO_ROOT/docs/informative/orks-0101-traceability.md"
+mapfile -d '' -t TRACEABILITY_DOCS < <(
+  find "$REPO_ROOT/docs/informative" \
+    -type f -name 'orks-*-traceability.md' -print0 |
+    sort -z
+)
 
 for markdown in "${NORMATIVE_DOCS[@]}"; do
   basename="$(basename "$markdown")"
   grep -Fq "]($basename)" "$REPO_ROOT/docs/normative/README.md" || \
     fail "normative document is not listed in the normative index: $(display_path "$markdown")"
+done
+
+for markdown in "${TRACEABILITY_DOCS[@]}"; do
+  basename="$(basename "$markdown")"
+  grep -Fq "]($basename)" "$REPO_ROOT/docs/informative/README.md" || \
+    fail "traceability document is not listed in the informative index: $(display_path "$markdown")"
 done
 
 while IFS= read -r -d '' markdown; do
@@ -254,7 +266,7 @@ while IFS= read -r -d '' markdown; do
     fail "document must declare exactly one status: $(display_path "$markdown")"
 done < <(find "$REPO_ROOT/docs" -type f -name '*.md' -print0)
 
-for markdown in "${NORMATIVE_DOCS[@]}" "$TRACEABILITY_DOC"; do
+for markdown in "${NORMATIVE_DOCS[@]}" "${TRACEABILITY_DOCS[@]}"; do
   version_count="$(grep -Fxc -- '- Target specification version: 0.1.0' "$markdown" || true)"
   [ "$version_count" -eq 1 ] || \
     fail "draft document must declare target specification version 0.1.0: $(display_path "$markdown")"
@@ -547,10 +559,13 @@ related_pairs="$(
 
 while IFS= read -r identifier; do
   ALLOCATED_RULES["$identifier"]=1
-  row_count="$(grep -Fc "| $identifier |" "$TRACEABILITY_DOC" || true)"
+  row_count="$(
+    (grep -hFc "| $identifier |" "${TRACEABILITY_DOCS[@]}" || true) |
+      awk '{ total += $1 } END { print total + 0 }'
+  )"
   [ "$row_count" -eq 1 ] || \
     fail "traceability must contain exactly one row for rule: $identifier"
-  row="$(grep -F "| $identifier |" "$TRACEABILITY_DOC" || true)"
+  row="$(grep -hF "| $identifier |" "${TRACEABILITY_DOCS[@]}" || true)"
   printf '%s\n' "$row" | grep -qE 'ORKS-EXAMPLE-[0-9]{6}' || \
     fail "traceability row must map the rule to at least one example: $identifier"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-RULE-' || true)
@@ -565,7 +580,7 @@ while IFS='|' read -r example rule; do
   [ -n "$example" ] || continue
   [ -n "${ALLOCATED_RULES[$rule]:-}" ] || \
     fail "example references an unallocated rule identifier: $rule"
-  row="$(grep -F "| $rule |" "$TRACEABILITY_DOC" || true)"
+  row="$(grep -hF "| $rule |" "${TRACEABILITY_DOCS[@]}" || true)"
   case "$row" in
     *"$example"*) ;;
     *) fail "example-to-rule metadata is missing from traceability: $example -> $rule" ;;
@@ -574,7 +589,7 @@ done < <(printf '%s\n' "$related_pairs")
 
 while IFS= read -r rule; do
   [ -n "$rule" ] || continue
-  row="$(grep -F "| $rule |" "$TRACEABILITY_DOC" || true)"
+  row="$(grep -hF "| $rule |" "${TRACEABILITY_DOCS[@]}" || true)"
   while IFS= read -r example; do
     [ -n "$example" ] || continue
     [ -n "${ALLOCATED_EXAMPLES[$example]:-}" ] || \
@@ -583,6 +598,55 @@ while IFS= read -r rule; do
       fail "traceability mapping is absent from example metadata: $rule -> $example"
   done < <(printf '%s\n' "$row" | grep -oE 'ORKS-EXAMPLE-[0-9]{6}' || true)
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-RULE-' || true)
+
+while IFS= read -r rule; do
+  [ -n "$rule" ] || continue
+  [ -n "${ALLOCATED_RULES[$rule]:-}" ] || \
+    fail "traceability references an unallocated rule identifier: $rule"
+done < <(
+  grep -hE '^\| ORKS-RULE-[0-9]{6} \|' "${TRACEABILITY_DOCS[@]}" |
+    sed -E 's/^\| (ORKS-RULE-[0-9]{6}) \|.*$/\1/'
+)
+
+while IFS= read -r rule; do
+  [ -n "$rule" ] || continue
+  number=$((10#${rule##*-}))
+  expected_trace="$REPO_ROOT/docs/informative/orks-0101-traceability.md"
+  [ "$number" -le 46 ] || \
+    expected_trace="$REPO_ROOT/docs/informative/orks-0102-traceability.md"
+  count="$(grep -Fc "| $rule |" "$expected_trace" || true)"
+  [ "$count" -eq 1 ] || \
+    fail "rule is not owned by its task traceability document: $rule"
+done < <(printf '%s\n' "$all_headings" | grep '^ORKS-RULE-' || true)
+
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0102 security traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0102-traceability.md"
+)
+
+BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
+[ "$(grep -Fxc '  "format": "orks-bundle",' "$BUNDLE_DOC" || true)" -eq 1 ] || \
+  fail "minimal bundle example must pin the exact format literal"
+[ "$(grep -Fxc '      "byte_length": 3' "$BUNDLE_DOC" || true)" -eq 1 ] || \
+  fail "minimal bundle example must pin byte_length 3"
+grep -Fq 'three bytes `7b 7d 0a`' "$BUNDLE_DOC" || \
+  fail "minimal bundle example must pin the stated entry bytes"
+grep -Fq '2,097,153 descriptor' "$BUNDLE_DOC" || \
+  fail "descriptor maximum-plus-one example is missing"
+grep -Fq '4,097' "$BUNDLE_DOC" || \
+  fail "entry-count maximum-plus-one example is missing"
+grep -Fq '129 records' "$BUNDLE_DOC" || \
+  fail "feature-count maximum-plus-one example is missing"
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2
