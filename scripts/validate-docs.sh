@@ -621,7 +621,7 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0102-traceability.md"
   elif [ "$number" -le 156 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0103-traceability.md"
-  elif [ "$number" -le 212 ]; then
+  elif [ "$number" -le 213 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0104-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
@@ -776,13 +776,21 @@ grep -Fq 'MUST NOT by itself establish provenance' "$LOCATOR_DOC" || \
   fail "locator authority separation is missing"
 grep -Fq 'MUST treat every locator input' "$LOCATOR_DOC" || \
   fail "sensitive locator diagnostic rule is missing"
-grep -Fq 'Unicode 15.1.0 Normalization Form C' "$LOCATOR_DOC" || \
+grep -Fq 'Unicode 17.0.0 Normalization Form C' "$LOCATOR_DOC" || \
   fail "locator Unicode normalization version is missing"
 grep -Fq 'immutable compatibility baseline' "$LOCATOR_DOC" || \
   fail "locator Unicode compatibility-baseline classification is missing"
-grep -Fq 'https://www.unicode.org/versions/Unicode15.1.0/' "$LOCATOR_DOC" || \
+grep -Fq '(https://www.unicode.org/versions/Unicode17.0.0/)' "$LOCATOR_DOC" || \
   fail "locator Unicode versioned authority reference is missing"
-grep -Fq 'requires a successor locator profile' "$LOCATOR_DOC" || \
+grep -Fq '(https://www.unicode.org/Public/17.0.0/ucd/)' "$LOCATOR_DOC" || \
+  fail "locator Unicode versioned data reference is missing"
+grep -Fq '(https://www.unicode.org/Public/17.0.0/ucd/NormalizationTest.txt)' "$LOCATOR_DOC" || \
+  fail "locator Unicode normalization-test reference is missing"
+grep -Fq '(https://www.unicode.org/Public/17.0.0/ucd/DerivedAge.txt)' "$LOCATOR_DOC" || \
+  fail "locator Unicode assigned-scalar data reference is missing"
+grep -Fq 'After the first ORKS release, changing' "$LOCATOR_DOC" || \
+  fail "locator Unicode post-release change boundary is missing"
+grep -Fq 'requires a successor' "$LOCATOR_DOC" || \
   fail "locator Unicode change policy is missing"
 grep -Fq 'MUST produce `unsupported locator scheme`' "$LOCATOR_DOC" || \
   fail "locator scheme outcome boundary is missing"
@@ -790,6 +798,53 @@ grep -Fq 'Malformed range syntax reports `invalid locator` before target' "$LOCA
   fail "locator lexical-before-resolution behavior is missing"
 grep -Fq 'A redirect location MUST be an absolute HTTPS URI whose exact' "$LOCATOR_DOC" || \
   fail "locator redirect validation boundary is missing"
+
+rule_213="$(awk '/^## ORKS-RULE-000213$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000213" { exit } capture' "$LOCATOR_DOC")"
+example_68="$(awk '/^## ORKS-EXAMPLE-000068$/ { capture=1 } capture && /^## / && $0 != "## ORKS-EXAMPLE-000068" { exit } capture' "$LOCATOR_DOC")"
+trace_213="$(grep -F '| ORKS-RULE-000213 |' "$REPO_ROOT/docs/informative/orks-0104-traceability.md" || true)"
+rule_209="$(awk '/^## ORKS-RULE-000209$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000209" { exit } capture' "$LOCATOR_DOC")"
+
+printf '%s\n' "$rule_213" | grep -Fq 'Unicode 17.0.0 Normalization Form C' || \
+  fail "ORKS-RULE-000213 is not scoped to Unicode 17.0.0 NFC"
+printf '%s\n' "$rule_213" | grep -Fq '`DerivedAge.txt` is not `Unassigned`' || \
+  fail "ORKS-RULE-000213 is missing the assigned-scalar test"
+printf '%s\n' "$example_68" | grep -Fq 'U+10940 SIDETIC' || \
+  fail "ORKS-EXAMPLE-000068 is missing the Unicode 17-only valid scalar"
+printf '%s\n' "$example_68" | grep -Fq '%F0%90%A5%80' || \
+  fail "ORKS-EXAMPLE-000068 is missing the Unicode 17-only UTF-8 encoding"
+printf '%s\n' "$example_68" | grep -Fq '1E0A;1E0A;0044 0307;1E0A;0044 0307;' || \
+  fail "ORKS-EXAMPLE-000068 is missing the pinned normalization vector"
+printf '%s\n' "$example_68" | grep -Fq '%E1%B8%8A` valid NFC' || \
+  fail "ORKS-EXAMPLE-000068 is missing the valid normalization locator"
+printf '%s\n' "$example_68" | grep -Fq 'decomposed `D%CC%87` form invalid' || \
+  fail "ORKS-EXAMPLE-000068 is missing the invalid normalization locator"
+printf '%s\n' "$example_68" | grep -Fq 'U+1095D encoded as `%F0%90%A5%9D`' || \
+  fail "ORKS-EXAMPLE-000068 is missing the Unicode 17 unassigned scalar"
+printf '%s\n' "$example_68" | grep -Fq 'while still `Unassigned` in Unicode 17.0.0' || \
+  fail "ORKS-EXAMPLE-000068 unassigned fixture is not scoped to Unicode 17.0.0"
+printf '%s\n' "$trace_213" | grep -Fq 'Unicode 17.0.0' || \
+  fail "ORKS-RULE-000213 trace row is not scoped to Unicode 17.0.0"
+printf '%s\n' "$trace_213" | grep -Fq 'U+10940' || \
+  fail "ORKS-RULE-000213 trace row is missing the Unicode 17-only scalar"
+printf '%s\n' "$trace_213" | grep -Fq 'U+1095D' || \
+  fail "ORKS-RULE-000213 trace row is missing the Unicode 17 unassigned scalar"
+printf '%s\n' "$trace_213" | grep -Fq '1E0A;1E0A;0044 0307;1E0A;0044 0307;' || \
+  fail "ORKS-RULE-000213 trace row is missing the normalization vector"
+printf '%s\n' "$rule_209" | grep -Fq 'ORKS-RULE-000172 through' || \
+  fail "ORKS-RULE-000209 is missing the redirect locator rule set"
+if printf '%s\n' "$rule_209" | rg -Fq 'ORKS-RULE-000172 through ORKS-RULE-000180|ORKS-RULE-000178'; then
+  fail "ORKS-RULE-000209 references withdrawn ORKS-RULE-000178"
+fi
+
+if grep -Fxq '## ORKS-RULE-000178' "$LOCATOR_DOC"; then
+  fail "superseded ORKS-RULE-000178 remains active"
+fi
+grep -Fq -- '- Retired identifier: ORKS-RULE-000178; introduced: 0.1.0; retired: 0.1.0; replacements: ORKS-RULE-000213' \
+  "$REPO_ROOT/docs/normative/identifiers.md" || \
+  fail "draft withdrawal of ORKS-RULE-000178 is missing"
+if rg -Fq 'Unicode 15.1.0 Normalization Form C' "$LOCATOR_DOC"; then
+  fail "superseded Unicode 15.1.0 remains an active normalization requirement"
+fi
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2

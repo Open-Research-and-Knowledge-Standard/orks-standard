@@ -96,11 +96,16 @@ value in a trace namespace without skipping a value.
 
 ## Retired Identifier Registry
 
-The registry has no entries in this draft. A future entry uses the fields
-`Retired identifier`, `introduced`, `retired`, and `replacements` in that
-order on one list-item line. The exact line form is `- Retired identifier:
+The registry includes draft withdrawals as well as identifiers retired after
+release. A draft withdrawal records the target draft version in both version
+fields and does not claim that the identifier appeared in a release. An entry
+uses the fields `Retired identifier`, `introduced`, `retired`, and
+`replacements` in that order on one list-item line. The exact line form is
+`- Retired identifier:
 ORKS-RULE-000123; introduced: 1.0.0; retired: 2.0.0; replacements:
 ORKS-RULE-000456, ORKS-RULE-000457`. The identifiers are synthetic.
+
+- Retired identifier: ORKS-RULE-000178; introduced: 0.1.0; retired: 0.1.0; replacements: ORKS-RULE-000213
 
 An identifier in draft material is provisional and can be renumbered before
 release. Release allocates the identifier permanently even if a later released
