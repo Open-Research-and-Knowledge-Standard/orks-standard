@@ -33,9 +33,11 @@ REQUIRED_PATHS=(
   docs/informative/README.md
   docs/informative/orks-0101-traceability.md
   docs/informative/orks-0102-traceability.md
+  docs/informative/orks-0103-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
   docs/normative/glossary.md
+  docs/normative/identity.md
   docs/normative/identifiers.md
   docs/normative/language.md
   docs/normative/versioning.md
@@ -611,9 +613,16 @@ done < <(
 while IFS= read -r rule; do
   [ -n "$rule" ] || continue
   number=$((10#${rule##*-}))
-  expected_trace="$REPO_ROOT/docs/informative/orks-0101-traceability.md"
-  [ "$number" -le 46 ] || \
+  if [ "$number" -le 46 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0101-traceability.md"
+  elif [ "$number" -le 110 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0102-traceability.md"
+  elif [ "$number" -le 156 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0103-traceability.md"
+  else
+    fail "rule is outside every allocated task range: $rule"
+    continue
+  fi
   count="$(grep -Fc "| $rule |" "$expected_trace" || true)"
   [ "$count" -eq 1 ] || \
     fail "rule is not owned by its task traceability document: $rule"
@@ -634,6 +643,21 @@ done < <(
   ' "$REPO_ROOT/docs/informative/orks-0102-traceability.md"
 )
 
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0103 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0103-traceability.md"
+)
+
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
 [ "$(grep -Fxc '  "format": "orks-bundle",' "$BUNDLE_DOC" || true)" -eq 1 ] || \
   fail "minimal bundle example must pin the exact format literal"
@@ -647,6 +671,33 @@ grep -Fq '4,097' "$BUNDLE_DOC" || \
   fail "entry-count maximum-plus-one example is missing"
 grep -Fq '129 records' "$BUNDLE_DOC" || \
   fail "feature-count maximum-plus-one example is missing"
+
+IDENTITY_DOC="$REPO_ROOT/docs/normative/identity.md"
+for literal in \
+  'orks-ref:logical-object:v1:<uuidv7>' \
+  'orks-ref:revision:v1:sha256:<64-lowercase-hex>' \
+  'orks-ref:source:v1:sha256:<64-lowercase-hex>' \
+  'orks-ref:bundle:v1:sha256:<64-lowercase-hex>' \
+  'orks.identity.revision.v1' \
+  'orks.identity.source.v1' \
+  'orks.identity.bundle.v1'; do
+  grep -Fq "$literal" "$IDENTITY_DOC" || \
+    fail "identity contract is missing pinned literal: $(display_value "$literal")"
+done
+
+grep -Fq \
+  'orks-ref:logical-object:v1:01890f7c-2c00-7abc-8def-0123456789ab' \
+  "$IDENTITY_DOC" || fail "canonical UUIDv7 identity example is missing"
+grep -Fq 'must preserve component' "$IDENTITY_DOC" || \
+  fail "ambiguous identity-preimage framing example is missing"
+grep -Fq 'same claimed source identifier' "$IDENTITY_DOC" || \
+  fail "forced digest-collision example is missing"
+grep -Fq 'identity-type mismatch' "$IDENTITY_DOC" || \
+  fail "cross-type identity mismatch behavior is missing"
+grep -Fq 'MUST NOT contain the revision' "$IDENTITY_DOC" || \
+  fail "revision self-inclusion prohibition is missing"
+grep -Fq 'MUST NOT contain the bundle identifier' "$IDENTITY_DOC" || \
+  fail "bundle self-inclusion prohibition is missing"
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2

@@ -181,7 +181,8 @@ a second meaning.
 - Permitted aliases: none
 - Status: Accepted
 - Definition: The durable conceptual identity that relates successive
-  revisions of one canonical object. Identifier syntax remains ORKS-0103 work.
+  revisions of one canonical object. Identifier syntax is defined by the
+  portable identity contract.
 - Disallowed aliases: revision; object version
 
 ## ORKS-TERM-000017
@@ -190,7 +191,8 @@ a second meaning.
 - Permitted aliases: object revision
 - Status: Accepted
 - Definition: One immutable accepted state of a logical object. Revision
-  identity and encoding remain later Phase 1 work.
+  identity is defined by the portable identity contract; exact byte encoding
+  remains later deterministic-encoding work.
 - Disallowed aliases: specification version; edit
 
 ## ORKS-TERM-000018
@@ -443,6 +445,90 @@ a second meaning.
   applies resource policy, performs exact negotiation, and reports one bundle
   processing outcome.
 - Disallowed aliases: archive extractor; semantic validator
+
+## ORKS-TERM-000046
+
+- Preferred term: logical object identifier
+- Permitted aliases: logical identifier, when the object context is explicit
+- Status: Accepted
+- Definition: The assigned UUIDv7 identity that remains stable across the
+  revisions of one logical object under identity profile `v1`.
+- Disallowed aliases: object version; revision identifier; UUID, when the
+  identity class would be unclear
+
+## ORKS-TERM-000047
+
+- Preferred term: revision identifier
+- Permitted aliases: revision identity
+- Status: Accepted
+- Definition: The domain-separated, content-derived identity of one complete
+  immutable revision bound to its logical object identifier.
+- Disallowed aliases: revision number; object identifier; version
+
+## ORKS-TERM-000048
+
+- Preferred term: source identifier
+- Permitted aliases: source-byte identity
+- Status: Accepted
+- Definition: The domain-separated, content-derived identity of exact source
+  bytes, excluding source snapshot metadata and source-object identity.
+- Disallowed aliases: source object identifier; source snapshot identifier;
+  source checksum
+
+## ORKS-TERM-000049
+
+- Preferred term: bundle identifier
+- Permitted aliases: bundle identity
+- Status: Accepted
+- Definition: The domain-separated, content-derived identity of a bundle's
+  exact descriptor bytes, portable paths, and exact entry bytes.
+- Disallowed aliases: bundle name; descriptor identifier; archive identifier
+
+## ORKS-TERM-000050
+
+- Preferred term: identity reference
+- Permitted aliases: ORKS identity reference; typed reference
+- Status: Accepted
+- Definition: A canonical self-contained ASCII string that preserves exactly
+  one ORKS identity class, identity profile, and identity value.
+- Disallowed aliases: URN; URI; locator; path
+
+## ORKS-TERM-000051
+
+- Preferred term: identity profile
+- Permitted aliases: derivation profile, for digest-derived identity
+- Status: Accepted
+- Definition: An immutable versioned contract for one ORKS identity syntax and
+  its generation or derivation rules, independent of the ORKS specification
+  version.
+- Disallowed aliases: specification version; feature version; hash version
+
+## ORKS-TERM-000052
+
+- Preferred term: identity preimage
+- Permitted aliases: digest preimage, when a digest-derived identity is explicit
+- Status: Accepted
+- Definition: The ordered domain and semantic components whose injective byte
+  encoding is hashed to derive an ORKS revision, source, or bundle identifier.
+- Disallowed aliases: payload; canonical object; raw checksum input
+
+## ORKS-TERM-000053
+
+- Preferred term: identity collision
+- Permitted aliases: logical identity collision, when the logical class is explicit
+- Status: Accepted
+- Definition: A logical object identifier allocation attempt whose generated
+  value is already reserved in the accepted identifier set.
+- Disallowed aliases: new revision; duplicate import; merge conflict
+
+## ORKS-TERM-000054
+
+- Preferred term: cryptographic integrity failure
+- Permitted aliases: digest collision, only when unequal verified preimages share one digest-derived identity
+- Status: Accepted
+- Definition: A claimed digest mismatch or a digest-derived identity associated
+  with unequal verified preimages, requiring fail-closed handling.
+- Disallowed aliases: identity match; duplicate content; resource refusal
 
 ## Reserved Terms
 
