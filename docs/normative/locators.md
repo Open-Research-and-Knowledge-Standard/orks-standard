@@ -163,6 +163,16 @@ Unicode normalization uses the Unicode 15.1.0 data tables. A decoded scalar
 unassigned in Unicode 15.1.0 is invalid even if a later Unicode version assigns
 it.
 
+Informative rationale: Unicode 15.1.0 is the immutable compatibility baseline
+for locator profile `v1`, not a claim that it is the latest Unicode release.
+It is the exact numeric baseline accepted for this profile. The pinned data
+tables make assigned-scalar and Normalization Form C outcomes independent of a
+host library or operating-system update. A later Unicode release cannot
+reinterpret an existing `v1` locator. Changing the accepted scalar repertoire
+or normalization data requires a successor locator profile and the applicable
+ORKS compatibility policy. The versioned external reference is
+[The Unicode Standard, Version 15.1.0](https://www.unicode.org/versions/Unicode15.1.0/).
+
 For outcome classification only, a recognizable external scheme form begins
 with exact `orks-loc:v1:`, then a scheme token matching
 `[a-z][a-z0-9+.-]{0,31}`, then exact `://`, then at least one ASCII byte.

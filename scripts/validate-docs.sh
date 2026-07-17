@@ -778,6 +778,12 @@ grep -Fq 'MUST treat every locator input' "$LOCATOR_DOC" || \
   fail "sensitive locator diagnostic rule is missing"
 grep -Fq 'Unicode 15.1.0 Normalization Form C' "$LOCATOR_DOC" || \
   fail "locator Unicode normalization version is missing"
+grep -Fq 'immutable compatibility baseline' "$LOCATOR_DOC" || \
+  fail "locator Unicode compatibility-baseline classification is missing"
+grep -Fq 'https://www.unicode.org/versions/Unicode15.1.0/' "$LOCATOR_DOC" || \
+  fail "locator Unicode versioned authority reference is missing"
+grep -Fq 'requires a successor locator profile' "$LOCATOR_DOC" || \
+  fail "locator Unicode change policy is missing"
 grep -Fq 'MUST produce `unsupported locator scheme`' "$LOCATOR_DOC" || \
   fail "locator scheme outcome boundary is missing"
 grep -Fq 'Malformed range syntax reports `invalid locator` before target' "$LOCATOR_DOC" || \
