@@ -34,12 +34,14 @@ REQUIRED_PATHS=(
   docs/informative/orks-0101-traceability.md
   docs/informative/orks-0102-traceability.md
   docs/informative/orks-0103-traceability.md
+  docs/informative/orks-0104-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
   docs/normative/glossary.md
   docs/normative/identity.md
   docs/normative/identifiers.md
   docs/normative/language.md
+  docs/normative/locators.md
   docs/normative/versioning.md
   scripts/validate-docs.sh
 )
@@ -596,7 +598,7 @@ while IFS= read -r rule; do
     [ -n "$example" ] || continue
     [ -n "${ALLOCATED_EXAMPLES[$example]:-}" ] || \
       fail "traceability references an unallocated example identifier: $example"
-    printf '%s\n' "$related_pairs" | grep -Fxq "$example|$rule" || \
+    grep -Fxq "$example|$rule" <<< "$related_pairs" || \
       fail "traceability mapping is absent from example metadata: $rule -> $example"
   done < <(printf '%s\n' "$row" | grep -oE 'ORKS-EXAMPLE-[0-9]{6}' || true)
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-RULE-' || true)
@@ -619,6 +621,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0102-traceability.md"
   elif [ "$number" -le 156 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0103-traceability.md"
+  elif [ "$number" -le 212 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0104-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -627,6 +631,33 @@ while IFS= read -r rule; do
   [ "$count" -eq 1 ] || \
     fail "rule is not owned by its task traceability document: $rule"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-RULE-' || true)
+
+while IFS= read -r example; do
+  [ -n "$example" ] || continue
+  number=$((10#${example##*-}))
+  if [ "$number" -le 25 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0101-traceability.md"
+  elif [ "$number" -le 41 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0102-traceability.md"
+  elif [ "$number" -le 61 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0103-traceability.md"
+  elif [ "$number" -le 82 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0104-traceability.md"
+  else
+    fail "example is outside every allocated task range: $example"
+    continue
+  fi
+  count="$(grep -oF "$example" "$expected_trace" | wc -l)"
+  [ "$count" -ge 1 ] || \
+    fail "example is not owned by its task traceability document: $example"
+done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
+
+while IFS= read -r term; do
+  [ -n "$term" ] || continue
+  number=$((10#${term##*-}))
+  [ "$number" -le 60 ] || \
+    fail "controlled term is outside every allocated task range: $term"
+done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
 
 while IFS= read -r rule; do
   [ -z "$rule" ] || \
@@ -656,6 +687,21 @@ done < <(
       }
     }
   ' "$REPO_ROOT/docs/informative/orks-0103-traceability.md"
+)
+
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0104 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0104-traceability.md"
 )
 
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
@@ -698,6 +744,46 @@ grep -Fq 'MUST NOT contain the revision' "$IDENTITY_DOC" || \
   fail "revision self-inclusion prohibition is missing"
 grep -Fq 'MUST NOT contain the bundle identifier' "$IDENTITY_DOC" || \
   fail "bundle self-inclusion prohibition is missing"
+
+LOCATOR_DOC="$REPO_ROOT/docs/normative/locators.md"
+for literal in \
+  'orks-loc:v1:bundle/<portable-path>' \
+  'orks-loc:v1:https://<canonical-host>/<canonical-path>' \
+  '#range=<unit>:<start>:<end>' \
+  '18446744073709551615' \
+  '2,048 ASCII' \
+  'unicode-scalar' \
+  'source-mismatch' \
+  'range-invalid' \
+  '[a-z][a-z0-9+.-]{0,31}' \
+  'A lexically valid range MUST fail resolved validation'; do
+  grep -Fq "$literal" "$LOCATOR_DOC" || \
+    fail "locator contract is missing pinned literal: $(display_value "$literal")"
+done
+
+grep -Fq \
+  'orks-loc:v1:https://example.org/research/paper%20one.txt' \
+  "$LOCATOR_DOC" || fail "canonical HTTPS locator example is missing"
+grep -Fq 'MUST preserve degraded status while the governed exact source bytes' "$LOCATOR_DOC" || \
+  fail "sticky degraded-reference behavior is missing"
+grep -Fq '**Requirement:** A portable locator MUST NOT contain a known secret,' "$LOCATOR_DOC" || \
+  fail "portable locator secret prohibition is missing"
+grep -Fq 'without ambient credentials' "$LOCATOR_DOC" || \
+  fail "credential-free external verification rule is missing"
+grep -Fq 'MUST reject loopback, private, link-local' "$LOCATOR_DOC" || \
+  fail "external target address boundary is missing"
+grep -Fq 'MUST NOT by itself establish provenance' "$LOCATOR_DOC" || \
+  fail "locator authority separation is missing"
+grep -Fq 'MUST treat every locator input' "$LOCATOR_DOC" || \
+  fail "sensitive locator diagnostic rule is missing"
+grep -Fq 'Unicode 15.1.0 Normalization Form C' "$LOCATOR_DOC" || \
+  fail "locator Unicode normalization version is missing"
+grep -Fq 'MUST produce `unsupported locator scheme`' "$LOCATOR_DOC" || \
+  fail "locator scheme outcome boundary is missing"
+grep -Fq 'Malformed range syntax reports `invalid locator` before target' "$LOCATOR_DOC" || \
+  fail "locator lexical-before-resolution behavior is missing"
+grep -Fq 'A redirect location MUST be an absolute HTTPS URI whose exact' "$LOCATOR_DOC" || \
+  fail "locator redirect validation boundary is missing"
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2

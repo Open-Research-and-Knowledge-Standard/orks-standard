@@ -8,9 +8,9 @@
 This directory is the home of normative ORKS specification text. This README
 is an informative index and does not define ORKS requirements.
 
-ORKS-0101, ORKS-0102, and ORKS-0103 draft material targets
-specification version `0.1.0`. Draft status does not claim a released ORKS
-specification or released conformance.
+ORKS-0101 through ORKS-0104 draft material targets specification version
+`0.1.0`. Draft status does not claim a released ORKS specification or released
+conformance.
 
 ## Draft Specification Documents
 
@@ -20,6 +20,7 @@ specification or released conformance.
 - [Specification trace identifiers](identifiers.md)
 - [Bundles and version negotiation](bundles.md)
 - [Portable identity](identity.md)
+- [Source and fragment locators](locators.md)
 
 ## Content Boundary
 
@@ -46,3 +47,7 @@ specification version `0.1.0`.
 Adam accepted planning decision `0012` and the corresponding ORKS-0103
 portable identity draft on 2026-07-17. The material remains an unreleased
 draft targeting specification version `0.1.0`.
+
+Adam accepted planning decision `0013`, the new controlled terms, and the
+corresponding ORKS-0104 locator draft on 2026-07-17. The material remains an
+unreleased draft targeting specification version `0.1.0`.
