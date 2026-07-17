@@ -159,19 +159,29 @@ The decoded path must be strict UTF-8 in Unicode Normalization Form C. A
 canonical writer emits unreserved ASCII literally and emits every other
 permitted byte as an uppercase hexadecimal percent escape.
 
-Unicode normalization uses the Unicode 15.1.0 data tables. A decoded scalar
-unassigned in Unicode 15.1.0 is invalid even if a later Unicode version assigns
+Unicode normalization uses the Unicode 17.0.0 data tables. A decoded scalar
+unassigned in Unicode 17.0.0 is invalid even if a later Unicode version assigns
 it.
 
-Informative rationale: Unicode 15.1.0 is the immutable compatibility baseline
+Informative rationale: Unicode 17.0.0 is the immutable compatibility baseline
 for locator profile `v1`, not a claim that it is the latest Unicode release.
 It is the exact numeric baseline accepted for this profile. The pinned data
 tables make assigned-scalar and Normalization Form C outcomes independent of a
 host library or operating-system update. A later Unicode release cannot
-reinterpret an existing `v1` locator. Changing the accepted scalar repertoire
-or normalization data requires a successor locator profile and the applicable
-ORKS compatibility policy. The versioned external reference is
-[The Unicode Standard, Version 15.1.0](https://www.unicode.org/versions/Unicode15.1.0/).
+reinterpret an existing `v1` locator. After the first ORKS release, changing
+the accepted scalar repertoire or normalization data requires a successor
+locator profile and the applicable ORKS compatibility policy. The versioned
+external reference is
+[The Unicode Standard, Version 17.0.0](https://www.unicode.org/versions/Unicode17.0.0/).
+Its versioned implementation data includes the
+[Unicode Character Database](https://www.unicode.org/Public/17.0.0/ucd/) and
+[NormalizationTest data](https://www.unicode.org/Public/17.0.0/ucd/NormalizationTest.txt).
+For this profile, an assigned scalar is a Unicode scalar value whose `Age`
+property in the versioned
+[DerivedAge data](https://www.unicode.org/Public/17.0.0/ucd/DerivedAge.txt) is
+not `Unassigned`. This definition includes private-use and noncharacter
+scalars, subject to every other path restriction; surrogate code points are
+not Unicode scalar values.
 
 For outcome classification only, a recognizable external scheme form begins
 with exact `orks-loc:v1:`, then a scheme token matching
@@ -214,13 +224,6 @@ unreserved ASCII characters and valid percent escapes.
 
 **Requirement:** A percent escape MUST use exactly two uppercase hexadecimal
 digits while rendering every unreserved ASCII byte literally.
-
-## ORKS-RULE-000178
-
-**Requirement:** One validation decode of an HTTPS path MUST produce strict
-UTF-8 in Unicode 15.1.0 Normalization Form C using only scalars assigned in
-Unicode 15.1.0, without producing a control byte, DEL, `/`, `\\`, `?`, `#`,
-`%`, `@`, or `:` from a percent escape.
 
 ## ORKS-RULE-000179
 
@@ -450,7 +453,8 @@ including mapped-address and DNS-rebinding bypasses.
 
 **Requirement:** A redirect location MUST be an absolute HTTPS URI whose exact
 ASCII bytes form a valid HTTPS source locator under ORKS-RULE-000172 through
-ORKS-RULE-000180 when prefixed with `orks-loc:v1:`, preserve the canonical
+ORKS-RULE-000177, ORKS-RULE-000179 through ORKS-RULE-000180, and
+ORKS-RULE-000213 when prefixed with `orks-loc:v1:`, preserve the canonical
 locator and expected source identifier, and independently pass authorization,
 address, and resource policy; relative or non-HTTPS locations are refused.
 
@@ -473,6 +477,14 @@ and stored locator as sensitive by default, bound emitted context, and redact
 or omit credentials, capability or session values, usernames, host or
 installation identifiers, and path detail without treating redaction as
 locator validation.
+
+## ORKS-RULE-000213
+
+**Requirement:** One validation decode of an HTTPS path MUST produce strict
+UTF-8 in Unicode 17.0.0 Normalization Form C using only scalars whose `Age`
+property in Unicode 17.0.0 `DerivedAge.txt` is not `Unassigned`, without
+producing a control byte, DEL, `/`, `\\`, `?`, `#`, `%`, `@`, or `:` from a
+percent escape.
 
 ## Normative Examples
 
@@ -536,7 +548,7 @@ upon, without another root, path normalization, or state mutation.
 
 - Classification: Valid
 - Normative status: Normative example
-- Related rules: ORKS-RULE-000172, ORKS-RULE-000173, ORKS-RULE-000174, ORKS-RULE-000175, ORKS-RULE-000176, ORKS-RULE-000177, ORKS-RULE-000178, ORKS-RULE-000179, ORKS-RULE-000180, ORKS-RULE-000183, ORKS-RULE-000184, ORKS-RULE-000185, ORKS-RULE-000186, ORKS-RULE-000187, ORKS-RULE-000188, ORKS-RULE-000190, ORKS-RULE-000192
+- Related rules: ORKS-RULE-000172, ORKS-RULE-000173, ORKS-RULE-000174, ORKS-RULE-000175, ORKS-RULE-000176, ORKS-RULE-000177, ORKS-RULE-000179, ORKS-RULE-000180, ORKS-RULE-000183, ORKS-RULE-000184, ORKS-RULE-000185, ORKS-RULE-000186, ORKS-RULE-000187, ORKS-RULE-000188, ORKS-RULE-000190, ORKS-RULE-000192, ORKS-RULE-000213
 - Expected outcome: Canonical public HTTPS source and fragment locators validate without fetching
 
 `orks-loc:v1:https://example.org/research/paper%20one.txt` has a lowercase
@@ -552,7 +564,7 @@ connection, redirect, or source check.
 
 - Classification: Security
 - Normative status: Normative example
-- Related rules: ORKS-RULE-000172, ORKS-RULE-000173, ORKS-RULE-000174, ORKS-RULE-000175, ORKS-RULE-000176, ORKS-RULE-000177, ORKS-RULE-000178, ORKS-RULE-000179, ORKS-RULE-000180, ORKS-RULE-000181, ORKS-RULE-000182, ORKS-RULE-000210
+- Related rules: ORKS-RULE-000172, ORKS-RULE-000173, ORKS-RULE-000174, ORKS-RULE-000175, ORKS-RULE-000176, ORKS-RULE-000177, ORKS-RULE-000179, ORKS-RULE-000180, ORKS-RULE-000181, ORKS-RULE-000182, ORKS-RULE-000210, ORKS-RULE-000213
 - Expected outcome: Authority, scheme, path, credential, and normalization attacks are rejected
 
 Separate inputs use uppercase `HTTPS`, recognized `http` and `ftp` schemes,
@@ -568,15 +580,21 @@ rejected without rewrite, access, fallback, or mutation.
 
 - Classification: Edge
 - Normative status: Normative example
-- Related rules: ORKS-RULE-000161, ORKS-RULE-000176, ORKS-RULE-000177, ORKS-RULE-000178, ORKS-RULE-000179, ORKS-RULE-000180
+- Related rules: ORKS-RULE-000161, ORKS-RULE-000176, ORKS-RULE-000177, ORKS-RULE-000179, ORKS-RULE-000180, ORKS-RULE-000213
 - Expected outcome: Percent and Unicode normalization have one canonical outcome
 
 `orks-loc:v1:https://example.org/caf%C3%A9` decodes once to strict UTF-8 NFC for
-validation and retains its uppercase escapes for comparison. Separate inputs
-use `%c3%a9`, percent-encoded unreserved `e`, decomposed `e%CC%81`, `%2F`,
-`%25`, `%00`, a scalar unassigned in Unicode 15.1.0, and a double-encoded
-traversal token. Each noncanonical or forbidden form is rejected rather than
-rewritten or decoded recursively.
+validation and retains its uppercase escapes for comparison. The locator
+`orks-loc:v1:https://example.org/%F0%90%A5%80` decodes to U+10940 SIDETIC
+LETTER N01, whose Unicode 17.0.0 `Age` makes it valid although it was
+unassigned in Unicode 15.1.0. The Unicode 17.0.0 `NormalizationTest.txt` row
+`1E0A;1E0A;0044 0307;1E0A;0044 0307;` makes
+`orks-loc:v1:https://example.org/%E1%B8%8A` valid NFC and the corresponding
+decomposed `D%CC%87` form invalid. Separate inputs use `%c3%a9`,
+percent-encoded unreserved `e`, decomposed `e%CC%81`, `%2F`, `%25`, `%00`,
+U+1095D encoded as `%F0%90%A5%9D` while still `Unassigned` in Unicode 17.0.0,
+and a double-encoded traversal token. Each noncanonical or forbidden form is
+rejected rather than rewritten or decoded recursively.
 
 ## ORKS-EXAMPLE-000069
 
