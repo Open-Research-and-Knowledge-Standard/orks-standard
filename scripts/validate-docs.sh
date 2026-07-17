@@ -832,7 +832,11 @@ printf '%s\n' "$trace_213" | grep -Fq '1E0A;1E0A;0044 0307;1E0A;0044 0307;' || \
   fail "ORKS-RULE-000213 trace row is missing the normalization vector"
 printf '%s\n' "$rule_209" | grep -Fq 'ORKS-RULE-000172 through' || \
   fail "ORKS-RULE-000209 is missing the redirect locator rule set"
-if printf '%s\n' "$rule_209" | rg -Fq 'ORKS-RULE-000172 through ORKS-RULE-000180|ORKS-RULE-000178'; then
+printf '%s\n' "$rule_209" | grep -Fq 'ORKS-RULE-000177' || \
+  fail "ORKS-RULE-000209 does not terminate its first active rule range at 000177"
+printf '%s\n' "$rule_209" | grep -Fq 'ORKS-RULE-000179 through ORKS-RULE-000180' || \
+  fail "ORKS-RULE-000209 is missing its second active rule range"
+if printf '%s\n' "$rule_209" | rg -q 'ORKS-RULE-000178'; then
   fail "ORKS-RULE-000209 references withdrawn ORKS-RULE-000178"
 fi
 
