@@ -22,6 +22,9 @@ that role.
 - [ORKS-0102 traceability](orks-0102-traceability.md) maps the accepted bundle,
   path, resource, and negotiation rules to examples and later conformance
   obligations.
+- [ORKS-0103 traceability](orks-0103-traceability.md) maps the accepted
+  identity, typed-reference, domain-separation, and collision rules to examples
+  and later conformance obligations.
 
 ## Architecture Decision Ownership
 
