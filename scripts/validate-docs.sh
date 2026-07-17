@@ -35,6 +35,7 @@ REQUIRED_PATHS=(
   docs/informative/orks-0102-traceability.md
   docs/informative/orks-0103-traceability.md
   docs/informative/orks-0104-traceability.md
+  docs/informative/orks-0105-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
   docs/normative/glossary.md
@@ -42,6 +43,7 @@ REQUIRED_PATHS=(
   docs/normative/identifiers.md
   docs/normative/language.md
   docs/normative/locators.md
+  docs/normative/provenance.md
   docs/normative/versioning.md
   scripts/validate-docs.sh
 )
@@ -576,7 +578,7 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-RULE-' || true)
 
 while IFS= read -r identifier; do
   ALLOCATED_EXAMPLES["$identifier"]=1
-  printf '%s\n' "$related_pairs" | grep -q "^$identifier|" || \
+  grep -q "^$identifier|" <<< "$related_pairs" || \
     fail "example has no parsed related-rule mapping: $identifier"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 
@@ -623,6 +625,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0103-traceability.md"
   elif [ "$number" -le 213 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0104-traceability.md"
+  elif [ "$number" -le 269 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0105-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -643,6 +647,8 @@ while IFS= read -r example; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0103-traceability.md"
   elif [ "$number" -le 82 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0104-traceability.md"
+  elif [ "$number" -le 105 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0105-traceability.md"
   else
     fail "example is outside every allocated task range: $example"
     continue
@@ -655,9 +661,20 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 while IFS= read -r term; do
   [ -n "$term" ] || continue
   number=$((10#${term##*-}))
-  [ "$number" -le 60 ] || \
+  [ "$number" -le 67 ] || \
     fail "controlled term is outside every allocated task range: $term"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
+
+for number in {61..67}; do
+  term="ORKS-TERM-$(printf '%06d' "$number")"
+  term_block="$(awk -v heading="## $term" '
+    $0 == heading { capture=1 }
+    capture && /^## / && $0 != heading { exit }
+    capture { print }
+  ' "$REPO_ROOT/docs/normative/glossary.md")"
+  printf '%s\n' "$term_block" | grep -Fxq -- '- Status: Accepted' || \
+    fail "accepted ORKS-0105 term is not marked Accepted: $term"
+done
 
 while IFS= read -r rule; do
   [ -z "$rule" ] || \
@@ -702,6 +719,21 @@ done < <(
       }
     }
   ' "$REPO_ROOT/docs/informative/orks-0104-traceability.md"
+)
+
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0105 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0105-traceability.md"
 )
 
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
@@ -849,6 +881,120 @@ grep -Fq -- '- Retired identifier: ORKS-RULE-000178; introduced: 0.1.0; retired:
 if rg -Fq 'Unicode 15.1.0 Normalization Form C' "$LOCATOR_DOC"; then
   fail "superseded Unicode 15.1.0 remains an active normalization requirement"
 fi
+
+PROVENANCE_DOC="$REPO_ROOT/docs/normative/provenance.md"
+for literal in \
+  'human`, `deterministic-rule`, or `named-provider`' \
+  'degraded source reference: exact governed bytes are not preserved' \
+  '`supported`, `degraded`, or `unsupported`' \
+  '`include-bytes` or `retain-degraded-reference`' \
+  'explicit user confirmation' \
+  'configured secret and sensitive-content checks'; do
+  grep -Fq "$literal" "$PROVENANCE_DOC" || \
+    fail "provenance contract is missing pinned invariant: $(display_value "$literal")"
+done
+
+rule_218="$(awk '/^## ORKS-RULE-000218$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000218" { exit } capture' "$PROVENANCE_DOC")"
+rule_220="$(awk '/^## ORKS-RULE-000220$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000220" { exit } capture' "$PROVENANCE_DOC")"
+rule_221="$(awk '/^## ORKS-RULE-000221$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000221" { exit } capture' "$PROVENANCE_DOC")"
+rule_230="$(awk '/^## ORKS-RULE-000230$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000230" { exit } capture' "$PROVENANCE_DOC")"
+rule_245="$(awk '/^## ORKS-RULE-000245$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000245" { exit } capture' "$PROVENANCE_DOC")"
+rule_246="$(awk '/^## ORKS-RULE-000246$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000246" { exit } capture' "$PROVENANCE_DOC")"
+rule_250="$(awk '/^## ORKS-RULE-000250$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000250" { exit } capture' "$PROVENANCE_DOC")"
+rule_255="$(awk '/^## ORKS-RULE-000255$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000255" { exit } capture' "$PROVENANCE_DOC")"
+rule_260="$(awk '/^## ORKS-RULE-000260$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000260" { exit } capture' "$PROVENANCE_DOC")"
+rule_261="$(awk '/^## ORKS-RULE-000261$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000261" { exit } capture' "$PROVENANCE_DOC")"
+rule_265="$(awk '/^## ORKS-RULE-000265$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000265" { exit } capture' "$PROVENANCE_DOC")"
+rule_268="$(awk '/^## ORKS-RULE-000268$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000268" { exit } capture' "$PROVENANCE_DOC")"
+rule_269="$(awk '/^## ORKS-RULE-000269$/ { capture=1 } capture && /^## / && $0 != "## ORKS-RULE-000269" { exit } capture' "$PROVENANCE_DOC")"
+example_95="$(awk '/^## ORKS-EXAMPLE-000095$/ { capture=1 } capture && /^## / && $0 != "## ORKS-EXAMPLE-000095" { exit } capture' "$PROVENANCE_DOC")"
+example_85="$(awk '/^## ORKS-EXAMPLE-000085$/ { capture=1 } capture && /^## / && $0 != "## ORKS-EXAMPLE-000085" { exit } capture' "$PROVENANCE_DOC")"
+
+for literal in \
+  'method label of at most 128 ASCII bytes' \
+  'method version of at most 64 ASCII bytes' \
+  'neither containing a control byte or installation-local identifier'; do
+  printf '%s\n' "$rule_218" | tr '\n' ' ' | grep -Fq "$literal" || \
+    fail "transformation method boundary is missing: $(display_value "$literal")"
+done
+printf '%s\n' "$rule_220" | tr '\n' ' ' | grep -Fq 'MUST NOT contain an output or containing-revision identifier because the later containing revision supplies the output association' || \
+  fail "transformation output self-inclusion prohibition is missing"
+for literal in \
+  'MUST record the actual producer of every transformation' \
+  'retain generated origin through immutable input provenance closure' \
+  'leave the prior producer record unchanged'; do
+  printf '%s\n' "$rule_221" | tr '\n' ' ' | grep -Fq "$literal" || \
+    fail "generated-origin transformation behavior is missing: $(display_value "$literal")"
+done
+printf '%s\n' "$rule_230" | tr '\n' ' ' | grep -Fq 'historical status and expected identifier unchanged' || \
+  fail "degraded historical binding behavior is missing"
+printf '%s\n' "$rule_245" | grep -Fq '`supports`,' || \
+  fail "export closure is missing supports relationships"
+printf '%s\n' "$rule_245" | grep -Fq '`challenges`,' || \
+  fail "export closure is missing challenges relationships"
+printf '%s\n' "$rule_245" | grep -Fq '`contextualizes`' || \
+  fail "export closure is missing contextualizes relationships"
+for literal in \
+  'seeding every requested subject revision' \
+  "revision's immutable transformation input revisions" \
+  'evidence target revisions' \
+  'recursively expanding every added canonical revision' \
+  'repeating until the set is stable'; do
+  printf '%s\n' "$rule_245" | tr '\n' ' ' | grep -Fq "$literal" || \
+    fail "export recursive closure is missing: $(display_value "$literal")"
+done
+printf '%s\n' "$rule_246" | tr '\n' ' ' | grep -Fq 'exact byte length for `include-bytes` or `not-retained` for `retain-degraded-reference`' || \
+  fail "export preview byte-length disposition behavior is missing"
+printf '%s\n' "$rule_250" | tr '\n' ' ' | grep -Fq 'least fixed point' || \
+  fail "export omission fixed-point behavior is missing"
+printf '%s\n' "$rule_250" | grep -Fq 'explicit user confirmation' || \
+  fail "export retained-set confirmation is missing"
+for literal in \
+  'removes a subject when any direct evidence link or required provenance input cannot be retained' \
+  'propagates removal through every required closure' \
+  'repeats until stable' \
+  'previews that exact retained set'; do
+  printf '%s\n' "$rule_250" | tr '\n' ' ' | grep -Fq "$literal" || \
+    fail "export omission fixed point is missing: $(display_value "$literal")"
+done
+printf '%s\n' "$rule_255" | grep -Fq 'provenance or runtime fields' || \
+  fail "portable provenance/runtime exclusion is missing"
+printf '%s\n' "$rule_260" | grep -Fq 'MUST refuse' || \
+  fail "fail-closed export refusal is missing"
+for literal in \
+  'outside the final output namespace' \
+  'unobservable before commit' \
+  'protected at least as strongly as source state' \
+  'removes staged artifact references' \
+  'renewed validation, preview, and confirmation'; do
+  printf '%s\n' "$rule_261" | tr '\n' ' ' | grep -Fq "$literal" || \
+    fail "confidential atomic export staging is missing: $(display_value "$literal")"
+done
+printf '%s\n' "$rule_265" | tr '\n' ' ' | grep -Fq 'without defining a fifth identity class' || \
+  fail "existing identity-class reuse boundary is missing"
+printf '%s\n' "$rule_268" | tr '\n' ' ' | grep -Fq "transformation descendant whose provenance input closure contains the cited subject" || \
+  fail "same-origin acquired-evidence laundering prohibition is missing"
+printf '%s\n' "$rule_269" | tr '\n' ' ' | grep -Fq 'historical degraded evidence link to the same governed source' || \
+  fail "included bytes must preserve historical degraded links"
+for literal in \
+  'acquisition_provenance_recorded: true' \
+  'source_identity_match: true' \
+  'content_category:' \
+  'configured_secret_check: passed' \
+  'configured_sensitive_content_check: passed' \
+  'per_source_authorized: true'; do
+  printf '%s\n' "$example_85" | grep -Fq "$literal" || \
+    fail "run-material acquisition example is incomplete: $(display_value "$literal")"
+done
+for literal in \
+  'subject_revision:' \
+  'relationship: supports' \
+  'evidence_revision:' \
+  'preservation: preserved' \
+  'exported_support_outcome: supported'; do
+  printf '%s\n' "$example_95" | grep -Fq "$literal" || \
+    fail "authorized byte-export support example is incomplete: $(display_value "$literal")"
+done
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2

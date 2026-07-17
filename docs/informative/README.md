@@ -28,6 +28,9 @@ that role.
 - [ORKS-0104 traceability](orks-0104-traceability.md) maps the accepted locator,
   range, root-resolution, degraded-status, and verification rules to examples
   and later conformance obligations.
+- [ORKS-0105 traceability](orks-0105-traceability.md) maps the accepted
+  provenance, direct-citation, support-outcome, and portable-export rules to
+  examples and later conformance obligations.
 
 ## Architecture Decision Ownership
 

@@ -340,8 +340,8 @@ a second meaning.
 - Preferred term: source evidence
 - Permitted aliases: evidence, in domain context
 - Status: Accepted
-- Definition: Source material and its provenance used to support or challenge
-  canonical knowledge.
+- Definition: Source material and its provenance used to support, challenge,
+  or contextualize canonical knowledge.
 - Disallowed aliases: verification evidence; proof
 
 ## ORKS-TERM-000034
@@ -574,9 +574,10 @@ a second meaning.
 - Preferred term: degraded source reference
 - Permitted aliases: degraded reference
 - Status: Accepted
-- Definition: A source-evidence reference whose exact governed bytes are not
-  retained by ORKS and whose weaker preservation status remains visible
-  independently of current locator verification.
+- Definition: A source-evidence reference recorded without retained exact
+  governed bytes and whose historical weaker preservation status remains
+  visible independently of later byte retention or current locator
+  verification.
 - Disallowed aliases: preserved evidence; verified source; live citation
 
 ## ORKS-TERM-000060
@@ -588,6 +589,73 @@ a second meaning.
   `not-attempted`, `refused`, `unavailable`, `unbound`, `source-mismatch`,
   `range-invalid`, or `verified`.
 - Disallowed aliases: provenance; citation status; preservation status
+
+## ORKS-TERM-000061
+
+- Preferred term: provenance record
+- Permitted aliases: provenance, when the record context is explicit
+- Status: Accepted
+- Definition: Portable semantic attribution containing one producer value and
+  one transformation record as part of a later revision's semantic value.
+- Disallowed aliases: provenance object; provenance event; audit log
+
+## ORKS-TERM-000062
+
+- Preferred term: transformation record
+- Permitted aliases: transformation, when the record context is explicit
+- Status: Accepted
+- Definition: Portable semantic history containing a method label and version,
+  an asserted UTC transformation time, and an ordered sequence of immutable
+  input revision or source references, without an output identifier.
+- Disallowed aliases: run log; prompt record; provenance event
+
+## ORKS-TERM-000063
+
+- Preferred term: evidence link
+- Permitted aliases: none
+- Status: Accepted
+- Definition: A revision-specific semantic binding from a cited immutable
+  subject revision to immutable source or fragment evidence, its relationship,
+  expected source identity, applicable locator, and preservation status.
+- Disallowed aliases: citation path; verification observation; relation
+
+## ORKS-TERM-000064
+
+- Preferred term: citation path
+- Permitted aliases: support path, when the relationship is `supports`
+- Status: Accepted
+- Definition: The finite direct sequence from one cited immutable subject
+  revision through one evidence link to one immutable source or fragment
+  revision and its expected source identifier.
+- Disallowed aliases: knowledge graph path; transformation chain; locator
+
+## ORKS-TERM-000065
+
+- Preferred term: support outcome
+- Permitted aliases: citation support outcome
+- Status: Accepted
+- Definition: Exactly one `supported`, `degraded`, or `unsupported` result for
+  a claim-bearing revision, determined from its complete direct citation paths.
+- Disallowed aliases: truth value; confidence; review status
+
+## ORKS-TERM-000066
+
+- Preferred term: export selection
+- Permitted aliases: portable export selection
+- Status: Accepted
+- Definition: The explicit user selection of canonical subject revisions,
+  source dispositions, and subject omissions used to construct one portable
+  export without changing canonical source state.
+- Disallowed aliases: backup policy; implicit dependency closure
+
+## ORKS-TERM-000067
+
+- Preferred term: export disposition
+- Permitted aliases: source disposition, when export context is explicit
+- Status: Accepted
+- Definition: Exactly one `include-bytes` or `retain-degraded-reference` choice
+  for a governed source retained by a requested portable export.
+- Disallowed aliases: subject omission; redaction mode; fallback
 
 ## Reserved Terms
 
