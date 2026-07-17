@@ -25,6 +25,9 @@ that role.
 - [ORKS-0103 traceability](orks-0103-traceability.md) maps the accepted
   identity, typed-reference, domain-separation, and collision rules to examples
   and later conformance obligations.
+- [ORKS-0104 traceability](orks-0104-traceability.md) maps the accepted locator,
+  range, root-resolution, degraded-status, and verification rules to examples
+  and later conformance obligations.
 
 ## Architecture Decision Ownership
 

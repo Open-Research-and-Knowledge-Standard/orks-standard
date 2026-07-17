@@ -210,8 +210,8 @@ a second meaning.
 - Permitted aliases: source fragment
 - Status: Accepted
 - Definition: The reserved MVP canonical object family for an addressable span
-  derived from source material. Its payload and locator semantics remain later
-  Phase 1 work.
+  derived from source material. Its locator semantics are defined by the
+  locator contract; its payload remains ORKS-0106 work.
 - Disallowed aliases: chunk
 
 ## ORKS-TERM-000020
@@ -529,6 +529,65 @@ a second meaning.
 - Definition: A claimed digest mismatch or a digest-derived identity associated
   with unequal verified preimages, requiring fail-closed handling.
 - Disallowed aliases: identity match; duplicate content; resource refusal
+
+## ORKS-TERM-000055
+
+- Preferred term: source locator
+- Permitted aliases: locator, when whole-source context is explicit
+- Status: Accepted
+- Definition: A canonical portable `orks-loc` value that selects one complete
+  bundle entry or one external HTTPS resource without asserting identity,
+  provenance, authority, or availability.
+- Disallowed aliases: source identifier; source path; URL
+
+## ORKS-TERM-000056
+
+- Preferred term: fragment locator
+- Permitted aliases: none
+- Status: Accepted
+- Definition: A canonical source locator followed by one nonempty byte or
+  Unicode-scalar range selector.
+- Disallowed aliases: fragment identifier; URI fragment; source identifier
+
+## ORKS-TERM-000057
+
+- Preferred term: locator profile
+- Permitted aliases: none
+- Status: Accepted
+- Definition: An immutable versioned contract for portable locator syntax,
+  normalization, ranges, resolution, and comparison, independent of the ORKS
+  specification version.
+- Disallowed aliases: identity profile; specification version; URI scheme
+
+## ORKS-TERM-000058
+
+- Preferred term: range selector
+- Permitted aliases: fragment range
+- Status: Accepted
+- Definition: The canonical `#range=<unit>:<start>:<end>` suffix that selects a
+  zero-based, end-exclusive, nonempty span of exact source bytes or their
+  strict UTF-8 Unicode scalar sequence.
+- Disallowed aliases: URI fragment; character range; line range
+
+## ORKS-TERM-000059
+
+- Preferred term: degraded source reference
+- Permitted aliases: degraded reference
+- Status: Accepted
+- Definition: A source-evidence reference whose exact governed bytes are not
+  retained by ORKS and whose weaker preservation status remains visible
+  independently of current locator verification.
+- Disallowed aliases: preserved evidence; verified source; live citation
+
+## ORKS-TERM-000060
+
+- Preferred term: locator verification status
+- Permitted aliases: verification observation, after an attempt when locator context is explicit
+- Status: Accepted
+- Definition: One current value from the ordered locator status set
+  `not-attempted`, `refused`, `unavailable`, `unbound`, `source-mismatch`,
+  `range-invalid`, or `verified`.
+- Disallowed aliases: provenance; citation status; preservation status
 
 ## Reserved Terms
 
