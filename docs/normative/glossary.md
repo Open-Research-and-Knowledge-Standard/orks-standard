@@ -16,6 +16,10 @@ An entry marked `Reserved` records a preferred label whose semantic contract
 is not yet accepted. Such a term cannot appear in a conformance rule until its
 terminology issue is resolved.
 
+An entry marked `Proposed` records the terminology used by a verified draft
+whose acceptance decision remains open. It does not replace an accepted or
+reserved baseline until the proposal is accepted.
+
 ## ORKS-RULE-000034
 
 **Requirement:** A specification editor MUST use the glossary's exact preferred
@@ -200,8 +204,9 @@ a second meaning.
 - Preferred term: source object
 - Permitted aliases: none
 - Status: Accepted
-- Definition: The reserved MVP canonical object family that identifies and
-  describes source evidence. Its payload semantics remain ORKS-0106 work.
+- Definition: The canonical object family that identifies governed source
+  bytes through a source identifier, byte length, locators, and media type
+  without embedding those bytes.
 - Disallowed aliases: source record; source snapshot; source bytes
 
 ## ORKS-TERM-000019
@@ -209,9 +214,8 @@ a second meaning.
 - Preferred term: fragment
 - Permitted aliases: source fragment
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for an addressable span
-  derived from source material. Its locator semantics are defined by the
-  locator contract; its payload remains ORKS-0106 work.
+- Definition: The canonical object family for an addressable source span,
+  binding one source revision and source identifier to one canonical locator.
 - Disallowed aliases: chunk
 
 ## ORKS-TERM-000020
@@ -219,8 +223,8 @@ a second meaning.
 - Preferred term: claim
 - Permitted aliases: none
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for an atomic,
-  reviewable assertion.
+- Definition: The canonical claim-bearing object family for one atomic text
+  assertion.
 - Disallowed aliases: fact; statement
 
 ## ORKS-TERM-000021
@@ -228,8 +232,8 @@ a second meaning.
 - Preferred term: concept
 - Permitted aliases: none
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for a durable
-  definition or reusable idea.
+- Definition: The canonical claim-bearing object family for one preferred
+  label, definition, and ordered aliases describing a reusable idea.
 - Disallowed aliases: topic; tag
 
 ## ORKS-TERM-000022
@@ -237,8 +241,8 @@ a second meaning.
 - Preferred term: entity
 - Permitted aliases: none
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for an identified
-  subject such as a person, organization, place, or work.
+- Definition: The canonical claim-bearing object family for an identified
+  subject with a preferred name, description, aliases, and concept kinds.
 - Disallowed aliases: named thing; record
 
 ## ORKS-TERM-000023
@@ -246,8 +250,8 @@ a second meaning.
 - Preferred term: relation
 - Permitted aliases: object relation
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for a typed link between
-  canonical objects.
+- Definition: The canonical claim-bearing object family for an ordered subject,
+  concept predicate, and object assertion without direct-evidence meaning.
 - Disallowed aliases: edge; link
 
 ## ORKS-TERM-000024
@@ -255,8 +259,9 @@ a second meaning.
 - Preferred term: citation
 - Permitted aliases: none
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for an evidence link
-  and locator.
+- Definition: The canonical standalone object family for one direct evidence
+  link between a claim-bearing subject revision and a source or fragment
+  revision, source identity, locator, and preservation state.
 - Disallowed aliases: reference; evidence
 
 ## ORKS-TERM-000025
@@ -264,8 +269,9 @@ a second meaning.
 - Preferred term: contradiction
 - Permitted aliases: none
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for incompatible claims
-  and their review state.
+- Definition: The canonical claim-bearing object family for one asserted
+  incompatibility between exactly two claim revisions and its basis, without
+  review or resolution state.
 - Disallowed aliases: conflict; disagreement
 
 ## ORKS-TERM-000026
@@ -273,9 +279,9 @@ a second meaning.
 - Preferred term: synthesis
 - Permitted aliases: synthesis object
 - Status: Accepted
-- Definition: The reserved MVP canonical object family for a higher-level view
-  assembled from other knowledge. Human or generated origin does not by itself
-  determine candidate or canonical status.
+- Definition: The canonical claim-bearing object family for a titled
+  higher-level text assembled from ordered component revisions. Human or
+  generated origin does not by itself determine candidate or canonical status.
 - Disallowed aliases: summary; generated answer
 
 ## ORKS-TERM-000027
@@ -657,32 +663,98 @@ a second meaning.
   for a governed source retained by a requested portable export.
 - Disallowed aliases: subject omission; redaction mode; fallback
 
-## Reserved Terms
+## ORKS-TERM-000068
+
+- Preferred term: canonical object envelope
+- Permitted aliases: object envelope, when canonical context is explicit
+- Status: Accepted
+- Definition: The closed common member structure that carries one canonical
+  object's family, identities, provenance, family payload, and extensions.
+- Disallowed aliases: revision preimage; bundle descriptor; object wrapper
+
+## ORKS-TERM-000069
+
+- Preferred term: object family
+- Permitted aliases: canonical object family
+- Status: Accepted
+- Definition: One of the ten closed MVP semantic payload classes selected by a
+  canonical object's exact family discriminator.
+- Disallowed aliases: object type, when confused with an implementation type;
+  extension profile
+
+## ORKS-TERM-000070
+
+- Preferred term: claim-bearing revision
+- Permitted aliases: claim-bearing object revision
+- Status: Accepted
+- Definition: An immutable claim, concept, entity, relation, contradiction, or
+  synthesis revision whose citation support outcome is derived from canonical
+  standalone citation objects.
+- Disallowed aliases: supported revision; accepted claim; citation subject
+
+## ORKS-TERM-000071
+
+- Preferred term: extension record
+- Permitted aliases: canonical extension, when record context is explicit
+- Status: Accepted
+- Definition: One revision-semantic record containing an exact extension name,
+  exact version, criticality Boolean, profile-independent dependency array,
+  and complete semantic value.
+- Disallowed aliases: optional field; plugin; installation annotation
+
+## ORKS-TERM-000072
+
+- Preferred term: extension namespace
+- Permitted aliases: namespace, when extension context is explicit
+- Status: Accepted
+- Definition: The exact reserved ORKS prefix or collision-resistant non-ORKS
+  name prefix under which one controller allocates immutable extension
+  profiles.
+- Disallowed aliases: network location; trust domain; authorization scope
+
+## ORKS-TERM-000073
+
+- Preferred term: critical extension
+- Permitted aliases: required extension, when feature negotiation is explicit
+- Status: Accepted
+- Definition: An extension record whose exact name and version require
+  understood semantics before the containing canonical object can be
+  processed.
+- Disallowed aliases: required field; trusted extension; bundle feature
+
+## ORKS-TERM-000074
+
+- Preferred term: object processing outcome
+- Permitted aliases: processing outcome, when object context is explicit
+- Status: Accepted
+- Definition: Exactly one ordered result from `invalid`, `unsupported`,
+  `resource refusal`, or `processable` for one canonical object processing
+  attempt.
+- Disallowed aliases: review outcome; support outcome; conformance result
+
+## Accepted Map Resolution
 
 ## ORKS-TERM-000037
 
 - Preferred term: map
 - Permitted aliases: map object
-- Status: Reserved
-- Definition: The reserved MVP object-family label whose canonical navigation
-  semantics and relationship to a rendered map-of-content projection require
-  resolution in ORKS-0106.
+- Status: Accepted
+- Definition: The MVP canonical object family for an ordered,
+  hierarchical navigation forest whose renderings remain generated
+  projections.
 - Disallowed aliases: map of content; navigation projection
 - Terminology issue: ORKS-TERM-ISSUE-000001
 
-## Unresolved Terminology
+## Resolved Terminology
 
 ## ORKS-TERM-ISSUE-000001
 
 - Affected term: ORKS-TERM-000037
-- Status: Open
+- Status: Resolved
 - Owner: ORKS-0106
-- Question: Is `map` a canonical navigation object whose renderings are
-  generated projections, or is it itself a disposable projection?
-- Safe default: Do not use `map` in a conformance rule before ORKS-0106 resolves
-  the object-family semantics.
-- Resolution condition: ORKS-0106 accepts one meaning and reconciles the MVP
-  object-family description.
+- Resolution: Accepted `map` as a canonical navigation object whose renderings
+  remain generated projections.
+- Resolved on: 2026-07-18
 
 ## ORKS-EXAMPLE-000014
 
@@ -711,9 +783,11 @@ disallowed alias because a generated projection is not canonical knowledge.
 - Related rules: ORKS-RULE-000036
 - Expected outcome: No premature conformance rule is created
 
-An informative design note can discuss the open meaning of `map` and cite
-`ORKS-TERM-ISSUE-000001`. A normative rule cannot require behavior for that
-term until the issue is resolved.
+While `map` was `Reserved` and `ORKS-TERM-ISSUE-000001` was open, an
+informative design note could discuss its possible meaning but a normative
+rule could not require it. After the issue was resolved and `map` became
+`Accepted`, normative rules could use only the accepted navigation-object
+meaning.
 
 ## ORKS-EXAMPLE-000024
 

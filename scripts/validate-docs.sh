@@ -36,6 +36,7 @@ REQUIRED_PATHS=(
   docs/informative/orks-0103-traceability.md
   docs/informative/orks-0104-traceability.md
   docs/informative/orks-0105-traceability.md
+  docs/informative/orks-0106-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
   docs/normative/glossary.md
@@ -43,6 +44,7 @@ REQUIRED_PATHS=(
   docs/normative/identifiers.md
   docs/normative/language.md
   docs/normative/locators.md
+  docs/normative/objects.md
   docs/normative/provenance.md
   docs/normative/versioning.md
   scripts/validate-docs.sh
@@ -504,21 +506,26 @@ done < <(
     function close_issue() {
       if (issue == "") return
       if (affected != 1) print issue "|terminology issue must contain exactly one Affected term field"
-      if (status != 1) print issue "|terminology issue must contain exactly one Open Status field"
+      if (open_status + resolved_status != 1) print issue "|terminology issue must contain exactly one Open or Resolved Status field"
       if (owner != 1) print issue "|terminology issue must contain exactly one Owner field"
-      if (question != 1) print issue "|terminology issue must contain exactly one Question field"
-      if (safe_default != 1) print issue "|terminology issue must contain exactly one Safe default field"
-      if (resolution != 1) print issue "|terminology issue must contain exactly one Resolution condition field"
+      if (open_status == 1 && question != 1) print issue "|open terminology issue must contain exactly one Question field"
+      if (open_status == 1 && safe_default != 1) print issue "|open terminology issue must contain exactly one Safe default field"
+      if (open_status == 1 && resolution_condition != 1) print issue "|open terminology issue must contain exactly one Resolution condition field"
+      if (resolved_status == 1 && resolution != 1) print issue "|resolved terminology issue must contain exactly one Resolution field"
+      if (resolved_status == 1 && resolved_on != 1) print issue "|resolved terminology issue must contain exactly one Resolved on field"
     }
     /^## ORKS-TERM-ISSUE-[0-9]{6}$/ {
       close_issue()
       issue = $2
       affected = 0
-      status = 0
+      open_status = 0
+      resolved_status = 0
       owner = 0
       question = 0
       safe_default = 0
       resolution = 0
+      resolution_condition = 0
+      resolved_on = 0
       next
     }
     /^## / {
@@ -528,11 +535,14 @@ done < <(
     }
     issue != "" {
       if ($0 ~ /^- Affected term: ORKS-TERM-[0-9]{6}$/) affected++
-      if ($0 ~ /^- Status: Open$/) status++
+      if ($0 ~ /^- Status: Open$/) open_status++
+      if ($0 ~ /^- Status: Resolved$/) resolved_status++
       if ($0 ~ /^- Owner: ORKS-[0-9]{4}$/) owner++
       if ($0 ~ /^- Question: .+/) question++
       if ($0 ~ /^- Safe default: .+/) safe_default++
-      if ($0 ~ /^- Resolution condition: .+/) resolution++
+      if ($0 ~ /^- Resolution condition: .+/) resolution_condition++
+      if ($0 ~ /^- Resolution: .+/) resolution++
+      if ($0 ~ /^- Resolved on: [0-9]{4}-[0-9]{2}-[0-9]{2}$/) resolved_on++
     }
     END { close_issue() }
   ' "$REPO_ROOT/docs/normative/glossary.md"
@@ -627,6 +637,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0104-traceability.md"
   elif [ "$number" -le 269 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0105-traceability.md"
+  elif [ "$number" -le 343 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0106-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -649,6 +661,8 @@ while IFS= read -r example; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0104-traceability.md"
   elif [ "$number" -le 105 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0105-traceability.md"
+  elif [ "$number" -le 131 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0106-traceability.md"
   else
     fail "example is outside every allocated task range: $example"
     continue
@@ -661,7 +675,7 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 while IFS= read -r term; do
   [ -n "$term" ] || continue
   number=$((10#${term##*-}))
-  [ "$number" -le 67 ] || \
+  [ "$number" -le 74 ] || \
     fail "controlled term is outside every allocated task range: $term"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
 
@@ -736,6 +750,21 @@ done < <(
   ' "$REPO_ROOT/docs/informative/orks-0105-traceability.md"
 )
 
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0106 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0106-traceability.md"
+)
+
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
 [ "$(grep -Fxc '  "format": "orks-bundle",' "$BUNDLE_DOC" || true)" -eq 1 ] || \
   fail "minimal bundle example must pin the exact format literal"
@@ -762,6 +791,102 @@ for literal in \
   grep -Fq "$literal" "$IDENTITY_DOC" || \
     fail "identity contract is missing pinned literal: $(display_value "$literal")"
 done
+
+OBJECT_DOC="$REPO_ROOT/docs/normative/objects.md"
+for literal in \
+  '`format`, `specification_version`, `object_family`, `logical_object`' \
+  'the semantic values of `format`, `specification_version`, `object_family`' \
+  'exclude the derived `revision` value from its own preimage' \
+  'ordered-set union of every distinct payload revision reference' \
+  'each dependency reference not already emitted' \
+  'union construction deduplicates' \
+  '`x.u<32-lowercase-hex>.`' \
+  'appear exactly in the descriptor' \
+  '`invalid`, `unsupported`, `resource refusal`, or `processable`'; do
+  grep -Fq "$literal" "$OBJECT_DOC" || \
+    fail "canonical object contract is missing pinned invariant: $(display_value "$literal")"
+done
+
+for family in source fragment claim concept entity relation citation contradiction synthesis map; do
+  grep -Fq "\`$family\` payload" "$OBJECT_DOC" || \
+    fail "canonical object family payload rule is missing: $family"
+done
+
+grep -Fq 'The family classification MUST treat exactly `claim`' "$OBJECT_DOC" || \
+  fail "claim-bearing family classification is missing"
+grep -Fq 'unknown noncritical extension' "$OBJECT_DOC" || \
+  fail "unknown noncritical extension preservation is missing"
+grep -Fq 'unknown critical extension' "$OBJECT_DOC" || \
+  fail "unknown critical extension failure is missing"
+grep -Fq '1,048,577' "$OBJECT_DOC" || \
+  fail "canonical object cumulative-string maximum-plus-one example is missing"
+grep -Fq '1,025 entries' "$OBJECT_DOC" || \
+  fail "canonical map maximum-plus-one example is missing"
+grep -Fq '16,385' "$OBJECT_DOC" || \
+  fail "canonical object node maximum-plus-one example is missing"
+grep -Fq '4,097-reference' "$REPO_ROOT/docs/informative/orks-0106-traceability.md" || \
+  fail "canonical object reference maximum-plus-one trace obligation is missing"
+grep -Fq 'no more than 4,096 total' "$OBJECT_DOC" || \
+  fail "canonical object total-reference ceiling is missing"
+grep -Fq 'degraded source reference: exact' "$OBJECT_DOC" || \
+  fail "canonical citation derived degraded warning is missing"
+grep -Fq '`dependencies` is the profile-independent reference array' "$OBJECT_DOC" || \
+  fail "canonical extension dependency member is missing"
+grep -Fq 'ORKS-0106 object scanning MUST begin only after' "$OBJECT_DOC" || \
+  fail "canonical object post-negotiation scan boundary is missing"
+grep -Fq 'missing or mismatched declaration discovered only' "$OBJECT_DOC" || \
+  fail "canonical critical-extension two-phase outcome boundary is missing"
+grep -Fq 'Canonical object and extension diagnostics MUST emit only' "$OBJECT_DOC" || \
+  fail "canonical object diagnostic boundary is missing"
+
+grep -Fq '"object_family": "claim"' "$OBJECT_DOC" || \
+  fail "complete canonical object example is missing for family: claim"
+for family in source fragment concept entity relation citation contradiction synthesis map; do
+  grep -Fq "object_family: $family" "$OBJECT_DOC" || \
+    fail "complete canonical object example is missing for family: $family"
+done
+
+for literal in \
+  'A `claim` payload MUST contain exactly one member named' \
+  'A `concept` payload MUST contain exactly `preferred_label`' \
+  'An `entity` payload MUST contain exactly `preferred_name`' \
+  'A `relation` payload MUST contain exactly `subject`' \
+  'A `citation` payload MUST contain exactly' \
+  'A `contradiction` payload MUST contain exactly `claim_a`' \
+  'A `synthesis` payload MUST contain exactly `title`' \
+  'A `map` payload MUST contain exactly `title`'; do
+  grep -Fq "$literal" "$OBJECT_DOC" || \
+    fail "canonical family field contract is missing: $(display_value "$literal")"
+done
+
+for number in 37 {68..74}; do
+  term="ORKS-TERM-$(printf '%06d' "$number")"
+  term_block="$(awk -v heading="## $term" '
+    $0 == heading { capture=1 }
+    capture && /^## / && $0 != heading { exit }
+    capture { print }
+  ' "$REPO_ROOT/docs/normative/glossary.md")"
+  printf '%s\n' "$term_block" | grep -Fxq -- '- Status: Accepted' || \
+    fail "accepted ORKS-0106 term is not marked Accepted: $term"
+done
+
+grep -Fq 'ORKS-0101 through ORKS-0106 draft baselines' "$REPO_ROOT/README.md" || \
+  fail "repository status does not mark ORKS-0106 as accepted"
+grep -Fq 'accepted planning decision `0015`' "$REPO_ROOT/docs/normative/README.md" || \
+  fail "normative index does not record ORKS-0106 acceptance"
+grep -Fq 'incompatibility between exactly two claim revisions' "$REPO_ROOT/docs/normative/glossary.md" || \
+  fail "accepted contradiction term is not reconciled to ORKS-0106"
+if grep -Fq 'reserved MVP canonical object family' "$REPO_ROOT/docs/normative/glossary.md"; then
+  fail "accepted object-family terminology retains a reserved baseline"
+fi
+if grep -Fq 'remains ORKS-0106 work' "$REPO_ROOT/docs/normative/glossary.md"; then
+  fail "accepted object-family terminology retains a stale ORKS-0106 deferral"
+fi
+grep -Fq 'After the issue was resolved and `map` became' "$REPO_ROOT/docs/normative/glossary.md" || \
+  fail "map terminology example does not record the accepted resolution"
+grep -Fq '[ORKS-0106 traceability](orks-0106-traceability.md) maps the accepted' \
+  "$REPO_ROOT/docs/informative/README.md" || \
+  fail "informative index does not record ORKS-0106 acceptance"
 
 grep -Fq \
   'orks-ref:logical-object:v1:01890f7c-2c00-7abc-8def-0123456789ab' \

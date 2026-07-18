@@ -31,6 +31,9 @@ that role.
 - [ORKS-0105 traceability](orks-0105-traceability.md) maps the accepted
   provenance, direct-citation, support-outcome, and portable-export rules to
   examples and later conformance obligations.
+- [ORKS-0106 traceability](orks-0106-traceability.md) maps the accepted
+  canonical object, family, envelope, extension, semantic-preimage, and
+  resource rules to examples and later conformance obligations.
 
 ## Architecture Decision Ownership
 
