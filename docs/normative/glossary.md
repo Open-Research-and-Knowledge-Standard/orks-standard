@@ -157,8 +157,9 @@ a second meaning.
 - Preferred term: candidate
 - Permitted aliases: candidate object
 - Status: Accepted
-- Definition: Proposed knowledge plus provenance and review state that has not
-  yet been accepted as canonical knowledge.
+- Definition: Proposed knowledge plus provenance that has not yet been accepted
+  as canonical knowledge; its installation-local candidate state and review
+  records remain outside the proposed canonical semantic value.
 - Disallowed aliases: draft revision; canonical candidate
 
 ## ORKS-TERM-000014
@@ -589,7 +590,7 @@ a second meaning.
 ## ORKS-TERM-000060
 
 - Preferred term: locator verification status
-- Permitted aliases: verification observation, after an attempt when locator context is explicit
+- Permitted aliases: current locator status, when locator context is explicit
 - Status: Accepted
 - Definition: One current value from the ordered locator status set
   `not-attempted`, `refused`, `unavailable`, `unbound`, `source-mismatch`,
@@ -731,6 +732,164 @@ a second meaning.
   `resource refusal`, or `processable` for one canonical object processing
   attempt.
 - Disallowed aliases: review outcome; support outcome; conformance result
+
+## Accepted ORKS-0107 Terms
+
+## ORKS-TERM-000075
+
+- Preferred term: candidate state
+- Permitted aliases: review state, when candidate context is explicit
+- Status: Accepted
+- Definition: Exactly one installation-local value from `pending`, `rejected`,
+  `withdrawn`, `superseded`, or `accepted` for one candidate.
+- Disallowed aliases: revision state; support outcome
+
+## ORKS-TERM-000076
+
+- Preferred term: review record
+- Permitted aliases: review event, when append-only record context is explicit
+- Status: Accepted
+- Definition: One append-only installation-local workflow record of a
+  candidate or canonical-state decision.
+- Disallowed aliases: canonical object; provenance record; audit authority
+
+## ORKS-TERM-000077
+
+- Preferred term: workflow reference
+- Permitted aliases: local workflow identifier
+- Status: Accepted
+- Definition: A bounded installation-local reference to a noncanonical
+  workflow record that conveys neither portable identity nor authority.
+- Disallowed aliases: ORKS identity; authorization token; portable reference
+
+## ORKS-TERM-000078
+
+- Preferred term: revision graph
+- Permitted aliases: revision history graph
+- Status: Accepted
+- Definition: The finite directed acyclic graph whose nodes are accepted
+  revisions of one logical object and whose ordered edges are bound through
+  identity-covered provenance inputs.
+- Disallowed aliases: review log; Git history; current state
+
+## ORKS-TERM-000079
+
+- Preferred term: revision parent
+- Permitted aliases: parent revision, predecessor for a one-parent successor
+- Status: Accepted
+- Definition: One accepted same-logical-object revision in a non-root
+  ordinary or merge revision's ordered lineage prefix.
+- Disallowed aliases: provenance source; logical parent; file ancestor
+
+## ORKS-TERM-000080
+
+- Preferred term: current head
+- Permitted aliases: selected revision, when logical-object context is explicit
+- Status: Accepted
+- Definition: The one installation-local selected accepted revision for a
+  logical object at a particular writer commit.
+- Disallowed aliases: latest revision; greatest revision; canonical object
+
+## ORKS-TERM-000081
+
+- Preferred term: expected current head
+- Permitted aliases: expected revision, when conditional-write context is explicit
+- Status: Accepted
+- Definition: The exact current-head revision or `none` against which one
+  candidate or workflow transition is conditionally evaluated.
+- Disallowed aliases: base hint; preferred revision; timestamp
+
+## ORKS-TERM-000082
+
+- Preferred term: stale write
+- Permitted aliases: stale transition
+- Status: Accepted
+- Definition: A candidate or workflow request whose expected state no longer
+  equals the corresponding state revalidated by the canonical writer.
+- Disallowed aliases: conflict; invalid object; retry
+
+## ORKS-TERM-000083
+
+- Preferred term: fork
+- Permitted aliases: revision fork
+- Status: Accepted
+- Definition: Two distinct accepted revisions of one logical object that
+  share the same revision parent.
+- Disallowed aliases: identity collision; contradiction; Git branch
+
+## ORKS-TERM-000084
+
+- Preferred term: semantic conflict
+- Permitted aliases: revision conflict, when logical-object context is explicit
+- Status: Accepted
+- Definition: An unresolved condition between one selected current head and a
+  distinct locally accepted competing tip when neither is an ancestor of the
+  other.
+- Disallowed aliases: contradiction; merge conflict; identity collision
+
+## ORKS-TERM-000085
+
+- Preferred term: conflict review item
+- Permitted aliases: conflict item
+- Status: Accepted
+- Definition: Installation-local workflow material presenting one current head
+  and one locally accepted competing tip for explicit human resolution.
+- Disallowed aliases: contradiction object; merge revision; file conflict
+
+## ORKS-TERM-000086
+
+- Preferred term: merge revision
+- Permitted aliases: merged revision
+- Status: Accepted
+- Definition: A complete accepted revision with exactly two ordered,
+  incomparable revision parents bound in its immutable provenance.
+- Disallowed aliases: patch; textual merge; conflict resolution record
+
+## ORKS-TERM-000087
+
+- Preferred term: head-selection decision
+- Permitted aliases: head selection
+- Status: Accepted
+- Definition: An append-only local review decision that selects an already
+  locally accepted revision without minting another revision.
+- Disallowed aliases: merge; revision mutation; last-writer wins
+
+## ORKS-TERM-000088
+
+- Preferred term: contradiction review record
+- Permitted aliases: contradiction review event
+- Status: Accepted
+- Definition: One append-only installation-local workflow record concerning
+  the review state of one immutable contradiction revision.
+- Disallowed aliases: contradiction payload; semantic conflict; truth record
+
+## ORKS-TERM-000089
+
+- Preferred term: contradiction review cycle
+- Permitted aliases: contradiction cycle
+- Status: Accepted
+- Definition: One linked review sequence that begins `open` for one immutable
+  contradiction revision and ends `dismissed` or `resolved` or remains
+  `confirmed`.
+- Disallowed aliases: claim revision; conflict item; support state
+
+## ORKS-TERM-000090
+
+- Preferred term: locator observation record
+- Permitted aliases: locator observation
+- Status: Accepted
+- Definition: One append-only installation-local result of an authorized
+  locator verification attempt for an exact revision and locator occurrence.
+- Disallowed aliases: locator verification status; evidence link; provenance
+
+## ORKS-TERM-000091
+
+- Preferred term: canonical writer
+- Permitted aliases: single writer, when canonical-state context is explicit
+- Status: Accepted
+- Definition: The installation-local serialized authority that revalidates
+  expected state and atomically commits accepted canonical-state transitions.
+- Disallowed aliases: reviewer; model; repository writer
 
 ## Accepted Map Resolution
 

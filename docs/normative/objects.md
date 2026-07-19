@@ -109,13 +109,16 @@ reference.
 ## ORKS-RULE-000282
 
 **Requirement:** The provenance transformation input sequence MUST begin with
-the ordered-set union of every distinct payload revision reference outside a
-citation evidence link and every extension dependency reference: emit payload
-references once in first-occurrence order, then emit once in ascending exact
-bytes each dependency reference not already emitted. The same dependency can
-occur in more than one extension array and union construction deduplicates that
-cross-extension overlap. Additional immutable revision or source inputs follow
-only in producer-declared order and without duplicating an earlier input.
+the zero-, one-, or two-element ORKS-0107 lineage prefix when revision ancestry
+applies, followed by the ordered-set union of every distinct payload revision
+reference outside a citation evidence link and every extension dependency
+reference: emit payload references once in first-occurrence order, then emit
+once in ascending exact bytes each dependency reference not already emitted.
+The same dependency can occur in more than one extension array and union
+construction deduplicates that cross-extension overlap. Additional immutable
+revision or source inputs follow only in producer-declared order and without
+duplicating an earlier input. A root's empty lineage prefix preserves the
+original dependency-first order.
 
 ## ORKS-RULE-000283
 
