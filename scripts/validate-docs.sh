@@ -37,6 +37,7 @@ REQUIRED_PATHS=(
   docs/informative/orks-0104-traceability.md
   docs/informative/orks-0105-traceability.md
   docs/informative/orks-0106-traceability.md
+  docs/informative/orks-0107-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
   docs/normative/glossary.md
@@ -46,6 +47,7 @@ REQUIRED_PATHS=(
   docs/normative/locators.md
   docs/normative/objects.md
   docs/normative/provenance.md
+  docs/normative/revisions.md
   docs/normative/versioning.md
   scripts/validate-docs.sh
 )
@@ -639,6 +641,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0105-traceability.md"
   elif [ "$number" -le 343 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0106-traceability.md"
+  elif [ "$number" -le 419 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0107-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -663,6 +667,8 @@ while IFS= read -r example; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0105-traceability.md"
   elif [ "$number" -le 131 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0106-traceability.md"
+  elif [ "$number" -le 156 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0107-traceability.md"
   else
     fail "example is outside every allocated task range: $example"
     continue
@@ -675,7 +681,7 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 while IFS= read -r term; do
   [ -n "$term" ] || continue
   number=$((10#${term##*-}))
-  [ "$number" -le 74 ] || \
+  [ "$number" -le 91 ] || \
     fail "controlled term is outside every allocated task range: $term"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
 
@@ -765,6 +771,21 @@ done < <(
   ' "$REPO_ROOT/docs/informative/orks-0106-traceability.md"
 )
 
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0107 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0107-traceability.md"
+)
+
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
 [ "$(grep -Fxc '  "format": "orks-bundle",' "$BUNDLE_DOC" || true)" -eq 1 ] || \
   fail "minimal bundle example must pin the exact format literal"
@@ -797,9 +818,10 @@ for literal in \
   '`format`, `specification_version`, `object_family`, `logical_object`' \
   'the semantic values of `format`, `specification_version`, `object_family`' \
   'exclude the derived `revision` value from its own preimage' \
-  'ordered-set union of every distinct payload revision reference' \
+  'the zero-, one-, or two-element ORKS-0107 lineage prefix' \
+  'followed by the ordered-set union of every distinct payload revision' \
   'each dependency reference not already emitted' \
-  'union construction deduplicates' \
+  'construction deduplicates that cross-extension overlap' \
   '`x.u<32-lowercase-hex>.`' \
   'appear exactly in the descriptor' \
   '`invalid`, `unsupported`, `resource refusal`, or `processable`'; do
@@ -870,7 +892,7 @@ for number in 37 {68..74}; do
     fail "accepted ORKS-0106 term is not marked Accepted: $term"
 done
 
-grep -Fq 'ORKS-0101 through ORKS-0106 draft baselines' "$REPO_ROOT/README.md" || \
+grep -Fq 'accepted ORKS-0101 through ORKS-0107 draft baselines' "$REPO_ROOT/README.md" || \
   fail "repository status does not mark ORKS-0106 as accepted"
 grep -Fq 'accepted planning decision `0015`' "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record ORKS-0106 acceptance"
@@ -887,6 +909,139 @@ grep -Fq 'After the issue was resolved and `map` became' "$REPO_ROOT/docs/normat
 grep -Fq '[ORKS-0106 traceability](orks-0106-traceability.md) maps the accepted' \
   "$REPO_ROOT/docs/informative/README.md" || \
   fail "informative index does not record ORKS-0106 acceptance"
+
+REVISION_DOC="$REPO_ROOT/docs/normative/revisions.md"
+
+rule_block() {
+  local document="$1"
+  local identifier="$2"
+  awk -v heading="## $identifier" '
+    $0 == heading { capture=1 }
+    capture && /^## / && $0 != heading { exit }
+    capture { print }
+  ' "$document"
+}
+
+rule_282="$(rule_block "$OBJECT_DOC" ORKS-RULE-000282)"
+rule_282_one_line="$(printf '%s\n' "$rule_282" | tr '\n' ' ')"
+for literal in \
+  'zero-, one-, or two-element ORKS-0107 lineage prefix' \
+  'followed by the ordered-set union' \
+  'empty lineage prefix preserves'; do
+  printf '%s\n' "$rule_282_one_line" | grep -Fq "$literal" || \
+    fail "Rule 000282 reconciliation is missing: $(display_value "$literal")"
+done
+
+while IFS='|' read -r identifier literal; do
+  block="$(rule_block "$REVISION_DOC" "$identifier")"
+  block_one_line="$(printf '%s\n' "$block" | tr '\n' ' ')"
+  printf '%s\n' "$block_one_line" | grep -Fq "$literal" || \
+    fail "$identifier is missing its security-critical invariant: $(display_value "$literal")"
+done <<'EOF'
+ORKS-RULE-000348|`import-fast-forward`, or `import-divergent`
+ORKS-RULE-000349|appends its review record
+ORKS-RULE-000354|MAY create a complete ordinary or merge candidate only
+ORKS-RULE-000357|`identity-verified` outcome that subsumes it
+ORKS-RULE-000358|confirm, dismiss, resolve, or reopen contradiction review
+ORKS-RULE-000364|zero-, one-, or two-element
+ORKS-RULE-000365|lineage prefix MUST precede
+ORKS-RULE-000366|input after the lineage prefix MUST NOT name another revision
+ORKS-RULE-000368|first parent MUST be the expected current head
+ORKS-RULE-000374|locally accepted graph of one logical object
+ORKS-RULE-000374|8,188 parent edges
+ORKS-RULE-000377|`create` and `import-create` MUST name expected head `none`
+ORKS-RULE-000378|local `successor` or `merge` candidate MUST name the selected current head
+ORKS-RULE-000379|MUST produce a stale outcome
+ORKS-RULE-000371|Different ordered ancestry MUST change
+ORKS-RULE-000382|Successful semantic acceptance MUST atomically expose
+ORKS-RULE-000382|terminal candidate state
+ORKS-RULE-000384|imported from another installation MUST be treated as untrusted
+ORKS-RULE-000385|writer MUST create one pending `import-create`
+ORKS-RULE-000385|validate its complete lineage and dependency
+ORKS-RULE-000385|every non-final proposed revision is an ancestor of the final revision
+ORKS-RULE-000387|create an open conflict item
+ORKS-RULE-000387|tip incomparable with the current head
+ORKS-RULE-000388|second root
+ORKS-RULE-000393|one locally accepted competing tip
+ORKS-RULE-000396|Every transaction that replaces a current head MUST preserve
+ORKS-RULE-000396|excluding the conflict item and old-head pair explicitly dispositioned
+ORKS-RULE-000403|only within-cycle contradiction transitions MUST be
+ORKS-RULE-000404|expected prior state `none`
+ORKS-RULE-000404|one or two unique references
+ORKS-RULE-000409|writer sequence from zero through
+ORKS-RULE-000409|zero through nine unique counts selected from
+ORKS-RULE-000409|resolve an existing exact locator occurrence
+ORKS-RULE-000410|Observation publication MUST atomically append
+ORKS-RULE-000410|installation-wide sequence rather than asserted time
+ORKS-RULE-000413|Observation retention MUST retain
+ORKS-RULE-000413|`policy-truncated`
+ORKS-RULE-000414|MUST enforce at most 4,096 records
+ORKS-RULE-000417|credentials
+ORKS-RULE-000419|fixed-point omission or refusal behavior
+EOF
+
+for literal in \
+  'one action from `create`, `successor`, `merge`,' \
+  'candidate MUST begin in `pending`' \
+  'zero-, one-, or two-element' \
+  'all new identity-covered' \
+  'MUST contain no more than 4,096' \
+  'pending `import-create`, `import-fast-forward`, or' \
+  'terminal candidate state' \
+  'create an open conflict item' \
+  'second root' \
+  'Every acceptance request MUST name the exact expected current' \
+  'retaining the current head, selecting the locally accepted' \
+  '`open` to `confirmed`, `dismissed`, or `resolved`' \
+  '18,446,744,073,709,551,615' \
+  'installation-wide sequence rather than asserted time' \
+  '`policy-truncated`' \
+  'fixed-point omission or refusal behavior' \
+  'MUST NOT echo local workflow or correlation'; do
+  grep -Fq "$literal" "$REVISION_DOC" || \
+    fail "revision and review contract is missing pinned invariant: $(display_value "$literal")"
+done
+
+for number in {75..91}; do
+  term="ORKS-TERM-$(printf '%06d' "$number")"
+  term_block="$(awk -v heading="## $term" '
+    $0 == heading { capture=1 }
+    capture && /^## / && $0 != heading { exit }
+    capture { print }
+  ' "$REPO_ROOT/docs/normative/glossary.md")"
+  printf '%s\n' "$term_block" | grep -Fxq -- '- Status: Accepted' || \
+    fail "accepted ORKS-0107 term is not marked Accepted: $term"
+done
+
+awk '
+  $0 == "## Accepted ORKS-0107 Terms" { section=1; expected=75; next }
+  section && /^## ORKS-TERM-/ {
+    wanted = sprintf("## ORKS-TERM-%06d", expected)
+    if ($0 != wanted) exit 2
+    if (expected == 91) { found=1; exit }
+    expected++
+    next
+  }
+  section && /^## / { exit 3 }
+  END { if (!found) exit 1 }
+' "$REPO_ROOT/docs/normative/glossary.md" || \
+  fail "Terms 000075 through 000091 are not contiguous in the Accepted ORKS-0107 Terms section"
+
+grep -Fq 'accepted ORKS-0101 through ORKS-0107 draft baselines' "$REPO_ROOT/README.md" || \
+  fail "repository status does not mark ORKS-0107 as accepted"
+grep -Fq 'accepted planning decision `0016`' "$REPO_ROOT/docs/normative/README.md" || \
+  fail "normative index does not record accepted ORKS-0107 decision"
+grep -Fq '[ORKS-0107 traceability](orks-0107-traceability.md) maps the accepted' \
+  "$REPO_ROOT/docs/informative/README.md" || \
+  fail "informative index does not record accepted ORKS-0107 traceability"
+
+if grep -Fq '## Proposed ORKS-0107 Terms' \
+  "$REPO_ROOT/docs/normative/glossary.md"; then
+  fail "stale proposed ORKS-0107 term section remains after acceptance"
+fi
+if grep -Fq 'proposed ORKS-0107 public draft' "$REPO_ROOT/README.md"; then
+  fail "repository status regressed to a proposed ORKS-0107 baseline"
+fi
 
 grep -Fq \
   'orks-ref:logical-object:v1:01890f7c-2c00-7abc-8def-0123456789ab' \
