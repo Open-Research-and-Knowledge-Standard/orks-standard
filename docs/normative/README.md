@@ -26,6 +26,7 @@ released conformance.
 - [Revision, review, conflict, and merge](revisions.md)
 - [Deterministic JSON and hashing](deterministic-json.md)
 - [Generated Markdown and edit proposals](projections.md)
+- [Compatibility, deprecation, and migration](compatibility.md)
 
 ## Content Boundary
 
@@ -81,3 +82,8 @@ Adam accepted planning decision `0018`, Terms 000094 through 000096, and the
 corresponding ORKS-0109 generated Markdown and edit-proposal draft on
 2026-07-19. The material remains an unreleased draft targeting specification
 version `0.1.0`.
+
+Adam accepted planning decision `0019`, Terms 000097 through 000105, and the
+corresponding ORKS-0110 compatibility, deprecation, and migration draft on
+2026-07-20. The complete Phase 1 Standard Kernel remains an unreleased draft
+targeting specification version `0.1.0`.

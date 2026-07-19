@@ -40,8 +40,10 @@ REQUIRED_PATHS=(
   docs/informative/orks-0107-traceability.md
   docs/informative/orks-0108-traceability.md
   docs/informative/orks-0109-traceability.md
+  docs/informative/orks-0110-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
+  docs/normative/compatibility.md
   docs/normative/deterministic-json.md
   docs/normative/glossary.md
   docs/normative/identity.md
@@ -651,6 +653,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0108-traceability.md"
   elif [ "$number" -le 515 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0109-traceability.md"
+  elif [ "$number" -le 585 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0110-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -681,6 +685,8 @@ while IFS= read -r example; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0108-traceability.md"
   elif [ "$number" -le 190 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0109-traceability.md"
+  elif [ "$number" -le 215 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0110-traceability.md"
   else
     fail "example is outside every allocated task range: $example"
     continue
@@ -693,7 +699,7 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 while IFS= read -r term; do
   [ -n "$term" ] || continue
   number=$((10#${term##*-}))
-  [ "$number" -le 96 ] || \
+  [ "$number" -le 105 ] || \
     fail "controlled term is outside every allocated task range: $term"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
 
@@ -828,6 +834,21 @@ done < <(
   ' "$REPO_ROOT/docs/informative/orks-0109-traceability.md"
 )
 
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0110 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0110-traceability.md"
+)
+
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
 [ "$(grep -Fxc '  "format": "orks-bundle",' "$BUNDLE_DOC" || true)" -eq 1 ] || \
   fail "minimal bundle example must pin the exact format literal"
@@ -934,7 +955,7 @@ for number in 37 {68..74}; do
     fail "accepted ORKS-0106 term is not marked Accepted: $term"
 done
 
-grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' "$REPO_ROOT/README.md" || \
+grep -Fq 'ORKS-0101 through ORKS-0110 accepted draft baselines' "$REPO_ROOT/README.md" || \
   fail "repository status does not mark ORKS-0106 as accepted"
 grep -Fq 'accepted planning decision `0015`' "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record ORKS-0106 acceptance"
@@ -1069,7 +1090,7 @@ awk '
 ' "$REPO_ROOT/docs/normative/glossary.md" || \
   fail "Terms 000075 through 000091 are not contiguous in the Accepted ORKS-0107 Terms section"
 
-grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' "$REPO_ROOT/README.md" || \
+grep -Fq 'ORKS-0101 through ORKS-0110 accepted draft baselines' "$REPO_ROOT/README.md" || \
   fail "repository status does not mark ORKS-0107 as accepted"
 grep -Fq 'accepted planning decision `0016`' "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record accepted ORKS-0107 decision"
@@ -1176,7 +1197,7 @@ awk '
 ' "$REPO_ROOT/docs/normative/glossary.md" || \
   fail "Terms 000092 and 000093 are not contiguous in the Accepted ORKS-0108 Terms section"
 
-grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' \
+grep -Fq 'ORKS-0101 through ORKS-0110 accepted draft baselines' \
   "$REPO_ROOT/README.md" || fail "repository status does not mark ORKS-0108 as accepted"
 grep -Fq 'Adam accepted planning decision `0017`' \
   "$REPO_ROOT/docs/normative/README.md" || \
@@ -1576,7 +1597,7 @@ awk '
 ' "$REPO_ROOT/docs/normative/glossary.md" || \
   fail "Terms 000094 through 000096 are not contiguous in the Accepted ORKS-0109 Terms section"
 
-grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' \
+grep -Fq 'ORKS-0101 through ORKS-0110 accepted draft baselines' \
   "$REPO_ROOT/README.md" || \
   fail "repository status does not identify ORKS-0109 as accepted"
 grep -Fq 'Adam accepted planning decision `0018`' \
@@ -1589,6 +1610,142 @@ if grep -Fq '## Proposed ORKS-0109 Terms' \
   "$REPO_ROOT/docs/normative/glossary.md"; then
   fail "stale proposed ORKS-0109 term section remains after acceptance"
 fi
+
+COMPATIBILITY_DOC="$REPO_ROOT/docs/normative/compatibility.md"
+compatibility_doc_one_line="$(tr '\n' ' ' < "$COMPATIBILITY_DOC")"
+for literal in \
+  'directional and operation-scoped' \
+  'no conforming downgrade route' \
+  'Structural invalidity precedes compatibility evaluation' \
+  'unique selection key' \
+  'source_required_features' \
+  'target_required_profiles' \
+  'Source prerequisites govern source validation' \
+  'Every admitted-shape identifier names exactly one mapping record' \
+  'A public deprecation notice contains exactly' \
+  '`removed_in`' \
+  'from one through 2,048 Unicode scalar values' \
+  'Every selected current head in a target bundle' \
+  'only as immutable history required by complete closure' \
+  'rerun closure, source classification, secret checks, preview' \
+  'Every Standard Kernel downgrade is refused' \
+  'without source bytes, semantic values, paths, locators, secrets, prompts'; do
+  printf '%s\n' "$compatibility_doc_one_line" | grep -Fq "$literal" || \
+    fail "compatibility contract is missing pinned invariant: $(display_value "$literal")"
+done
+
+while IFS='|' read -r identifier literal; do
+  block="$(rule_block "$COMPATIBILITY_DOC" "$identifier")"
+  block_one_line="$(printf '%s\n' "$block" | tr '\n' ' ')"
+  printf '%s\n' "$block_one_line" | grep -Fq "$literal" || \
+    fail "$identifier is missing its compatibility invariant: $(display_value "$literal")"
+done <<'EOF'
+ORKS-RULE-000520|MUST NOT infer compatibility
+ORKS-RULE-000528|enumerate both `validate` and `preserve-bytes` records
+ORKS-RULE-000534|before any entry semantic scan
+ORKS-RULE-000537|unknown object family or base member
+ORKS-RULE-000537|invalid object
+ORKS-RULE-000540|without criticality reduction or fallback
+ORKS-RULE-000547|MUST NOT reinterpret or remint
+ORKS-RULE-000553|MUST NOT authorize automatic migration
+ORKS-RULE-000549|publish and retain with its historical specification
+ORKS-RULE-000549|closed field, value, and cross-field model
+ORKS-RULE-000554|only in a major release
+ORKS-RULE-000558|deterministic processing-order
+ORKS-RULE-000559|without implicit reverse, transitive, graph-searched, or input-selected composition
+ORKS-RULE-000560|exact source contract before transformation
+ORKS-RULE-000562|MUST NOT authorize a network fetch
+ORKS-RULE-000563|ordered five-result migration sequence
+ORKS-RULE-000564|complete bounded fixed-point closure
+ORKS-RULE-000564|deterministic topological processing order
+ORKS-RULE-000565|route-portable-over-limit path or shape
+ORKS-RULE-000565|lower-installation-limit stop
+ORKS-RULE-000565|preservation refusal
+ORKS-RULE-000566|leave every source revision
+ORKS-RULE-000568|existing ordered two-parent merge workflow
+ORKS-RULE-000571|`pending`, `identity-verified` candidate
+ORKS-RULE-000572|closed fields, states, member fields, action labels
+ORKS-RULE-000572|expected-head mapping
+ORKS-RULE-000572|cannot be reused by another set
+ORKS-RULE-000572|each pending member is terminally actionable only through its owning set
+ORKS-RULE-000572|every wrapper and route/source/target field equals its referenced candidate and set binding
+ORKS-RULE-000572|authorized set rejection occurs atomically
+ORKS-RULE-000573|leave all member, head, canonical, and set state unchanged
+ORKS-RULE-000574|per-source authorization, and final confirmation
+ORKS-RULE-000575|preserve degraded evidence status
+ORKS-RULE-000577|non-ancestry provenance inputs
+ORKS-RULE-000577|citations, evidence, extensions, and extension dependencies
+ORKS-RULE-000580|report `unsupported` for every downgrade transformation
+ORKS-RULE-000582|reproduce the descriptor, portable paths, entry bytes
+ORKS-RULE-000584|MUST NOT claim original bytes
+EOF
+
+for number in {97..105}; do
+  term="ORKS-TERM-$(printf '%06d' "$number")"
+  term_block="$(awk -v heading="## $term" '
+    $0 == heading { capture=1 }
+    capture && /^## / && $0 != heading { exit }
+    capture { print }
+  ' "$REPO_ROOT/docs/normative/glossary.md")"
+  printf '%s\n' "$term_block" | grep -Fxq -- '- Status: Accepted' || \
+    fail "accepted ORKS-0110 term is not marked Accepted: $term"
+done
+
+awk '
+  $0 == "## Accepted ORKS-0110 Terms" { section=1; expected=97; next }
+  section && /^## ORKS-TERM-/ {
+    wanted = sprintf("## ORKS-TERM-%06d", expected)
+    if ($0 != wanted) exit 2
+    if (expected == 105) { found=1; exit }
+    expected++
+    next
+  }
+  section && /^## / { exit 3 }
+  END { if (!found) exit 1 }
+' "$REPO_ROOT/docs/normative/glossary.md" || \
+  fail "Terms 000097 through 000105 are not contiguous in the Accepted ORKS-0110 Terms section"
+
+if grep -Fq '## Proposed ORKS-0110 Terms' \
+  "$REPO_ROOT/docs/normative/glossary.md"; then
+  fail "stale proposed ORKS-0110 term section remains after acceptance"
+fi
+grep -Fq 'ORKS-0101 through ORKS-0110 accepted draft baselines' \
+  "$REPO_ROOT/README.md" || \
+  fail "repository status does not identify ORKS-0110 as accepted"
+grep -Fq 'Adam accepted planning decision `0019`, Terms 000097 through 000105' \
+  "$REPO_ROOT/docs/normative/README.md" || \
+  fail "normative index does not identify accepted ORKS-0110 authority"
+grep -Fq '[ORKS-0110 traceability](orks-0110-traceability.md) maps the accepted' \
+  "$REPO_ROOT/docs/informative/README.md" || \
+  fail "informative index does not identify accepted ORKS-0110 traceability"
+integrated_matrix="$REPO_ROOT/docs/informative/orks-0110-traceability.md"
+while IFS= read -r expected_row; do
+  [ -z "$expected_row" ] && continue
+  [ "$(grep -Fxc "$expected_row" "$integrated_matrix")" -eq 1 ] || \
+    fail "integrated Phase 1 matrix is missing or duplicates an exact allocation row: $(display_value "$expected_row")"
+done <<'EOF'
+| Language, versioning, and identifiers | 000001-000046 | ORKS-0101 | ORKS-0202, ORKS-0203, ORKS-0208 |
+| Bundles and exact negotiation | 000047-000110 | ORKS-0102 | ORKS-0202, ORKS-0203, ORKS-0208 |
+| Portable identity | 000111-000156 | ORKS-0103 | ORKS-0203, ORKS-0204, ORKS-0208 |
+| Locators | 000157-000213 | ORKS-0104 | ORKS-0203, ORKS-0205, ORKS-0208 |
+| Provenance, citation, and export | 000214-000269 | ORKS-0105 | ORKS-0203, ORKS-0206, ORKS-0208 |
+| Objects, families, and extensions | 000270-000343 | ORKS-0106 | ORKS-0202, ORKS-0203, ORKS-0208 |
+| Revision and review state | 000344-000419 | ORKS-0107 | ORKS-0203, ORKS-0207, ORKS-0208 |
+| Deterministic JSON and hashing | 000420-000457 | ORKS-0108 | ORKS-0203, ORKS-0204, ORKS-0208 |
+| Generated projections | 000458-000515 | ORKS-0109 | ORKS-0203, ORKS-0207, ORKS-0208 |
+| Compatibility and migration | 000516-000585 | ORKS-0110 | ORKS-0202, ORKS-0203, ORKS-0204, ORKS-0206, ORKS-0207, ORKS-0208 |
+EOF
+
+integrated_row_count="$(awk '
+  $0 == "## Integrated Phase 1 to Phase 2 Matrix" { section=1; next }
+  section && /^\| .* \| [0-9]{6}-[0-9]{6} \| ORKS-[0-9]{4} \|/ { count++ }
+  section && count > 0 && !/^\|/ { print count; exit }
+' "$integrated_matrix")"
+[ "$integrated_row_count" = 10 ] || \
+  fail "integrated Phase 1 matrix must contain exactly ten allocation rows"
+grep -Fq 'Every Standard Kernel downgrade fixture must produce refusal' \
+  "$REPO_ROOT/docs/informative/orks-0110-traceability.md" || \
+  fail "integrated Phase 2 matrix does not pin downgrade refusal"
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2

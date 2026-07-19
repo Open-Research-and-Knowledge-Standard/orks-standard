@@ -6,9 +6,10 @@ knowledge.
 
 ## Repository Status
 
-This repository contains the public documentation foundation and accepted
-ORKS-0101 through ORKS-0109 draft baselines targeting version `0.1.0`.
-This repository does not yet contain a released ORKS specification.
+This repository contains the public documentation foundation, the
+ORKS-0101 through ORKS-0110 accepted draft baselines targeting version
+`0.1.0`. This repository does not yet contain a released ORKS specification;
+the accepted Phase 1 Standard Kernel remains an unreleased draft.
 
 ## Repository Scope
 
