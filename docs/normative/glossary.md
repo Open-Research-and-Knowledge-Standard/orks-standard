@@ -946,6 +946,96 @@ a second meaning.
   independently of every claim carried in projection bytes.
 - Disallowed aliases: marker context; embedded trust; portable authorization
 
+## Accepted ORKS-0110 Terms
+
+## ORKS-TERM-000097
+
+- Preferred term: compatibility claim
+- Permitted aliases: none
+- Status: Accepted
+- Definition: A directional assertion that one exact specification version,
+  operation, and exact feature and profile prerequisite set is supported,
+  including one exact target version when canonical output is produced.
+- Disallowed aliases: semantic-version compatibility; compatible version
+
+## ORKS-TERM-000098
+
+- Preferred term: compatibility matrix
+- Permitted aliases: support matrix, when the cross-version context is explicit
+- Status: Accepted
+- Definition: The finite trusted release record containing every exact
+  directional operation and version pair a consumer claims.
+- Disallowed aliases: version range; artifact capability claim
+
+## ORKS-TERM-000099
+
+- Preferred term: exact-byte preservation round trip
+- Permitted aliases: byte-preservation round trip
+- Status: Accepted
+- Definition: Validation plus storage or export that reproduces the complete
+  portable artifact bytes, labels, and identities without migration.
+- Disallowed aliases: migration round trip; semantic rewrite
+
+## ORKS-TERM-000100
+
+- Preferred term: semantic round trip
+- Permitted aliases: none
+- Status: Accepted
+- Definition: Processing within one exact specification version that preserves
+  the complete revision semantic value, references, extensions, evidence
+  status, canonical bytes, and revision identity.
+- Disallowed aliases: byte pass-through; cross-version migration
+
+## ORKS-TERM-000101
+
+- Preferred term: deprecated capability
+- Permitted aliases: deprecated construct
+- Status: Accepted
+- Definition: A still-valid capability whose public minor-release notice
+  recommends replacement while preserving its meaning for the rest of the
+  major version.
+- Disallowed aliases: removed capability; invalid capability
+
+## ORKS-TERM-000102
+
+- Preferred term: migration route
+- Permitted aliases: migration plan
+- Status: Accepted
+- Definition: One trusted directional and bounded contract mapping an exact
+  source specification version and prerequisites to one exact target version,
+  with mappings, limits, preservation checks, and refusal outcomes.
+- Disallowed aliases: automatic upgrade; inferred path
+
+## ORKS-TERM-000103
+
+- Preferred term: migration
+- Permitted aliases: version migration, when the version context is explicit
+- Status: Accepted
+- Definition: Explicit execution of one migration route that leaves source
+  artifacts unchanged and stages new target-version pending candidates with
+  new revision identities.
+- Disallowed aliases: negotiation; in-place upgrade; downgrade
+
+## ORKS-TERM-000104
+
+- Preferred term: migration provenance
+- Permitted aliases: none
+- Status: Accepted
+- Definition: The target revision provenance that identifies the actual
+  producer, exact migration method and version, transformation time, and
+  complete immutable source inputs without claiming original authorship.
+- Disallowed aliases: original provenance; compatibility metadata
+
+## ORKS-TERM-000105
+
+- Preferred term: migration candidate set
+- Permitted aliases: migration batch, when the private staging context is explicit
+- Status: Accepted
+- Definition: A complete dependency-closed private staged group of pending,
+  identity-verified migration candidates that becomes visible atomically and
+  has no portable authority to accept knowledge.
+- Disallowed aliases: migrated bundle; accepted migration
+
 ## Accepted Map Resolution
 
 ## ORKS-TERM-000037

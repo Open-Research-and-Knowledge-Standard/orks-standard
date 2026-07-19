@@ -43,6 +43,10 @@ that role.
 - [ORKS-0109 traceability](orks-0109-traceability.md) maps the accepted
   generated Markdown, origin-marker, edit-import, candidate-creation,
   anti-spoofing, and closed-outcome rules to later conformance obligations.
+- [ORKS-0110 traceability](orks-0110-traceability.md) maps the accepted
+  compatibility, deprecation, migration, downgrade-refusal, mixed-history, and
+  round-trip rules to later conformance obligations and integrates the Phase 1
+  rule ranges with Phase 2 work.
 
 ## Architecture Decision Ownership
 
