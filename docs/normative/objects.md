@@ -16,9 +16,9 @@ This document does not define revision continuity, review transitions,
 accepted JSON input, canonical byte encoding, digest calculation, generated
 rendering, cross-version compatibility, migration, executable schemas, or
 conformance fixtures. The examples use JSON-shaped semantic notation to show
-member placement. They do not claim the deferred accepted serialization or a
-known-answer revision digest. Every identity and datum in an example is
-synthetic.
+member placement. They do not claim the separate ORKS-0108 accepted
+serialization or a known-answer revision digest. Every identity and datum in
+an example is synthetic.
 
 ## Common Envelope
 
@@ -94,8 +94,9 @@ the envelope's provenance, payload, or extension values.
 **Requirement:** An implementation relying on a revision identity binding MUST
 verify the claimed reference against the complete semantic preimage using the
 applicable deterministic encoding contract, while ORKS-0106 semantic
-validation alone defers accepted JSON, injective byte framing, exact SHA-256
-calculation, serialized object-byte limits, and known-answer values.
+validation alone does not establish accepted JSON, injective byte framing,
+exact SHA-256 calculation, serialized object-byte limits, or known-answer
+values.
 
 ## Common Values and References
 
@@ -145,9 +146,10 @@ DEL, C1 control, line feed, or carriage return.
 
 **Requirement:** A `source` payload MUST contain exactly `source_identifier`,
 `byte_length`, `locators`, and `media_type`, using a source reference for
-`source_identifier`, an unsigned integer from zero through
-18446744073709551615 for `byte_length`, and either `null` or one nonempty
-printable ASCII assertion of at most 127 bytes for `media_type`.
+`source_identifier`, an accepted JSON number token matching
+`0|[1-9][0-9]*` with a value from zero through `9007199254740991` for
+`byte_length`, and either `null` or one nonempty printable ASCII assertion of
+at most 127 bytes for `media_type`.
 
 ## ORKS-RULE-000287
 
@@ -1147,8 +1149,8 @@ domain, its exact logical object reference, and the ordered semantic record of
 `orks-object`, `0.1.0`, `claim`, the complete provenance value, the complete
 claim payload, and the empty extension array. The claimed `a` revision value is
 outside that preimage. Adding an extension, changing producer attribution, or
-changing claim text changes the semantic preimage. Exact framing, bytes, and
-digest remain deferred.
+changing claim text changes the semantic preimage. This example does not claim
+the exact framing, bytes, and digest supplied by ORKS-0108 examples.
 
 ## ORKS-EXAMPLE-000130
 

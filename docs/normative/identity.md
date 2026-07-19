@@ -54,9 +54,10 @@ with distinct ASCII domain labels:
 - source: `orks.identity.source.v1`;
 - bundle: `orks.identity.bundle.v1`.
 
-ORKS-0108 will define the injective byte encoding and known-answer SHA-256
-vectors for these semantic preimages. Syntax validation under this document
-does not by itself verify the claimed digest binding.
+The deterministic JSON and hashing contract defines the injective byte
+encoding and known-answer SHA-256 vectors for these semantic preimages. Syntax
+validation under this document does not by itself verify the claimed digest
+binding.
 
 ## Identity Classes and Typed Syntax
 
@@ -323,8 +324,8 @@ before relying on a bundle identifier binding.
 ## Normative Examples
 
 Digest values below are synthetic 32-byte values rendered as lowercase hex.
-They exercise identity syntax and semantic coverage, not the deferred
-ORKS-0108 known-answer calculation.
+They exercise identity syntax and semantic coverage, not the separate
+ORKS-0108 known-answer calculations.
 
 ## ORKS-EXAMPLE-000042
 
@@ -569,7 +570,7 @@ identity profile instead of changing `v1`.
 - Expected outcome: Tuple boundaries prevent ambiguous concatenation
 
 One synthetic bundle tuple contains path `a` and bytes `bc`; another contains
-path `ab` and bytes `c`. The ORKS-0108 encoding must preserve component
+path `ab` and bytes `c`. The accepted ORKS-0108 encoding preserves component
 boundaries and lengths, so the unequal tuples cannot produce the same encoded
 preimage by raw concatenation.
 

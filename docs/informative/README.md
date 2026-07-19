@@ -37,6 +37,9 @@ that role.
 - [ORKS-0107 traceability](orks-0107-traceability.md) maps the accepted
   revision, review, conflict, merge, contradiction-review, and locator-
   observation rules to examples and later conformance obligations.
+- [ORKS-0108 traceability](orks-0108-traceability.md) maps the accepted
+  accepted-JSON, canonicalization, identity-frame, SHA-256, limit, and known-
+  answer rules to examples and later conformance obligations.
 
 ## Architecture Decision Ownership
 

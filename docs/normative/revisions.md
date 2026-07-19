@@ -123,8 +123,8 @@ and set exactly one outcome from `not-evaluated`, `invalid`, `unsupported`,
 **Requirement:** `semantically-processable`, or the stronger
 `identity-verified` outcome that subsumes it, MUST be necessary for acceptance
 without by itself accepting a candidate, moving a current head, or establishing
-support; operational acceptance requires `identity-verified` once the
-ORKS-0108 contract applies.
+support; operational acceptance requires `identity-verified` under the
+accepted ORKS-0108 contract.
 
 ## Human Authority Boundary
 
@@ -674,7 +674,7 @@ provider provenance remains unchanged.
 One candidate is invalid, one is unsupported, one receives resource refusal,
 and one is processable but unreviewed. None is accepted. The ORKS-0107 fixture
 uses claimed revision references and does not claim exact encoded bytes or a
-known-answer digest before ORKS-0108 applies.
+known-answer digest; the separate ORKS-0108 examples supply those vectors.
 
 ## ORKS-EXAMPLE-000137
 
@@ -759,7 +759,7 @@ value transitions its duplicate candidate to terminal accepted and is
 otherwise idempotent. Replacing
 its parent `a` with `c`, reordering merge prefix `[b, c]` to `[c, b]`, or
 removing the prefix changes the immutable semantic value and cannot retain the
-same verified revision identifier once ORKS-0108 applies.
+same verified revision identifier under the accepted ORKS-0108 contract.
 
 ## ORKS-EXAMPLE-000144
 

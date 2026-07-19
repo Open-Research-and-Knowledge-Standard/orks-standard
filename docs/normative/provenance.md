@@ -21,8 +21,8 @@ work.
 The examples use a complete illustrative semantic notation rather than an
 accepted serialization. Braces group one semantic value, brackets contain an
 ordered sequence, and `none` records an explicitly absent optional value.
-Digest text is invented and does not claim the deferred known-answer
-calculation.
+Digest text is invented and does not claim the separate ORKS-0108 known-answer
+calculations.
 
 ## Provenance Records and Transformations
 
