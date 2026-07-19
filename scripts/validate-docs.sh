@@ -38,8 +38,10 @@ REQUIRED_PATHS=(
   docs/informative/orks-0105-traceability.md
   docs/informative/orks-0106-traceability.md
   docs/informative/orks-0107-traceability.md
+  docs/informative/orks-0108-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
+  docs/normative/deterministic-json.md
   docs/normative/glossary.md
   docs/normative/identity.md
   docs/normative/identifiers.md
@@ -643,6 +645,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0106-traceability.md"
   elif [ "$number" -le 419 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0107-traceability.md"
+  elif [ "$number" -le 457 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0108-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -669,6 +673,8 @@ while IFS= read -r example; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0106-traceability.md"
   elif [ "$number" -le 156 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0107-traceability.md"
+  elif [ "$number" -le 170 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0108-traceability.md"
   else
     fail "example is outside every allocated task range: $example"
     continue
@@ -681,7 +687,7 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 while IFS= read -r term; do
   [ -n "$term" ] || continue
   number=$((10#${term##*-}))
-  [ "$number" -le 91 ] || \
+  [ "$number" -le 93 ] || \
     fail "controlled term is outside every allocated task range: $term"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
 
@@ -784,6 +790,21 @@ done < <(
       }
     }
   ' "$REPO_ROOT/docs/informative/orks-0107-traceability.md"
+)
+
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0108 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0108-traceability.md"
 )
 
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
@@ -892,7 +913,7 @@ for number in 37 {68..74}; do
     fail "accepted ORKS-0106 term is not marked Accepted: $term"
 done
 
-grep -Fq 'accepted ORKS-0101 through ORKS-0107 draft baselines' "$REPO_ROOT/README.md" || \
+grep -Fq 'accepted ORKS-0101 through ORKS-0108 draft baselines' "$REPO_ROOT/README.md" || \
   fail "repository status does not mark ORKS-0106 as accepted"
 grep -Fq 'accepted planning decision `0015`' "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record ORKS-0106 acceptance"
@@ -1027,7 +1048,7 @@ awk '
 ' "$REPO_ROOT/docs/normative/glossary.md" || \
   fail "Terms 000075 through 000091 are not contiguous in the Accepted ORKS-0107 Terms section"
 
-grep -Fq 'accepted ORKS-0101 through ORKS-0107 draft baselines' "$REPO_ROOT/README.md" || \
+grep -Fq 'accepted ORKS-0101 through ORKS-0108 draft baselines' "$REPO_ROOT/README.md" || \
   fail "repository status does not mark ORKS-0107 as accepted"
 grep -Fq 'accepted planning decision `0016`' "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record accepted ORKS-0107 decision"
@@ -1043,10 +1064,124 @@ if grep -Fq 'proposed ORKS-0107 public draft' "$REPO_ROOT/README.md"; then
   fail "repository status regressed to a proposed ORKS-0107 baseline"
 fi
 
+JSON_DOC="$REPO_ROOT/docs/normative/deterministic-json.md"
+for literal in \
+  'strict lossless subset of the RFC 8785 lineage' \
+  '`-9007199254740991` through `9007199254740991`' \
+  'UTF-16 code-unit order' \
+  '16,777,216 raw bytes (decimal `16777216`)' \
+  '16,777,217' \
+  '4,194,304 bytes (decimal `4194304`)' \
+  '4,194,305 canonical bytes' \
+  'orks.identity.frame.v1.sha256' \
+  'unsigned 64-bit big-endian' \
+  'with no trailing newline' \
+  '3bc6bd1a6ea6c83dc92a9b17462a8314feb822e4ed3c7587a9adcdb8903ebcbd' \
+  'a333d5afb79c26344c942eee8335e7cc495d2f08c9744a42a317a1e0fba322b7' \
+  '39b983c5e73365d42da153ce3c174928ecab0e0f73364f2bd04a86bbf15ae5a7' \
+  '9ccd3d177dfb8c51ed2659c5fd8e8607102b0ac4d5811d14b71623a4953ee962' \
+  '1385b33f16541393299e72f5a9efd3f99bc12f5de44f601b2b6c5a96aa279e71' \
+  'b060886e4fbd865a8b495238602977aea8022e2f9869210ae717703e5d95ff7b'; do
+  grep -Fq "$literal" "$JSON_DOC" || \
+    fail "deterministic JSON contract is missing pinned invariant: $(display_value "$literal")"
+done
+
+while IFS='|' read -r identifier literal; do
+  block="$(rule_block "$JSON_DOC" "$identifier")"
+  block_one_line="$(printf '%s\n' "$block" | tr '\n' ' ')"
+  printf '%s\n' "$block_one_line" | grep -Fq "$literal" || \
+    fail "$identifier is missing its deterministic-byte invariant: $(display_value "$literal")"
+done <<'EOF'
+ORKS-RULE-000423|before conversion to a map
+ORKS-RULE-000425|no more than 17 ASCII bytes
+ORKS-RULE-000425|rejected on an eighteenth byte before arbitrary-precision conversion or allocation
+ORKS-RULE-000426|reject the number token `-0`
+ORKS-RULE-000433|UTF-16 code-unit order
+ORKS-RULE-000436|MUST emit canonicalized JSON
+ORKS-RULE-000436|produce the same bytes for the same accepted JSON value
+ORKS-RULE-000436|language, locale, platform, or map iteration order
+ORKS-RULE-000441|exactly one object containing `format`
+ORKS-RULE-000442|exclude only the top-level claimed `revision` member
+ORKS-RULE-000443|every extension record's name, version, criticality, dependencies, and value
+ORKS-RULE-000443|unknown noncritical extension
+ORKS-RULE-000444|exact ASCII frame magic
+ORKS-RULE-000444|`orks.identity.frame.v1.sha256`
+ORKS-RULE-000444|eight-byte component count
+ORKS-RULE-000444|every eight-byte length
+ORKS-RULE-000445|Every frame count and component length MUST use `U64BE`
+ORKS-RULE-000445|checked-arithmetic overflow
+ORKS-RULE-000446|exactly three components
+ORKS-RULE-000447|exact source bytes
+ORKS-RULE-000448|exact `orks-bundle.json` bytes
+ORKS-RULE-000448|adjacent components in ascending portable-path byte order
+ORKS-RULE-000450|exactly once
+ORKS-RULE-000451|extra terminator
+ORKS-RULE-000454|without echoing source bytes
+EOF
+
+example_169="$(rule_block "$JSON_DOC" ORKS-EXAMPLE-000169)"
+example_169_one_line="$(printf '%s\n' "$example_169" | tr '\n' ' ')"
+for literal in \
+  'frame-test vectors only' \
+  'empty descriptor is invalid' \
+  'neither digest is a valid bundle identity' \
+  'cannot frame it before descriptor and tree validation succeeds'; do
+  printf '%s\n' "$example_169_one_line" | grep -Fq "$literal" || \
+    fail "Example 000169 is missing its frame-test boundary: $(display_value "$literal")"
+done
+
+for number in 92 93; do
+  term="ORKS-TERM-$(printf '%06d' "$number")"
+  term_block="$(awk -v heading="## $term" '
+    $0 == heading { capture=1 }
+    capture && /^## / && $0 != heading { exit }
+    capture { print }
+  ' "$REPO_ROOT/docs/normative/glossary.md")"
+  printf '%s\n' "$term_block" | grep -Fxq -- '- Status: Accepted' || \
+    fail "accepted ORKS-0108 term is not marked Accepted: $term"
+done
+
+awk '
+  $0 == "## Accepted ORKS-0108 Terms" { section=1; expected=92; next }
+  section && /^## ORKS-TERM-/ {
+    wanted = sprintf("## ORKS-TERM-%06d", expected)
+    if ($0 != wanted) exit 2
+    if (expected == 93) { found=1; exit }
+    expected++
+    next
+  }
+  section && /^## / { exit 3 }
+  END { if (!found) exit 1 }
+' "$REPO_ROOT/docs/normative/glossary.md" || \
+  fail "Terms 000092 and 000093 are not contiguous in the Accepted ORKS-0108 Terms section"
+
+grep -Fq 'accepted ORKS-0101 through ORKS-0108 draft baselines' \
+  "$REPO_ROOT/README.md" || fail "repository status does not mark ORKS-0108 as accepted"
+grep -Fq 'Adam accepted planning decision `0017`' \
+  "$REPO_ROOT/docs/normative/README.md" || \
+  fail "normative index does not record accepted ORKS-0108 decision"
+grep -Fq 'ORKS-0101 through ORKS-0108 accepted draft material' \
+  "$REPO_ROOT/docs/normative/README.md" || \
+  fail "normative index does not include the accepted ORKS-0108 draft baseline"
+grep -Fq '[ORKS-0108 traceability](orks-0108-traceability.md) maps the accepted' \
+  "$REPO_ROOT/docs/informative/README.md" || \
+  fail "informative index does not record accepted ORKS-0108 traceability"
+if grep -Fq '## Proposed ORKS-0108 Terms' \
+  "$REPO_ROOT/docs/normative/glossary.md"; then
+  fail "stale proposed ORKS-0108 term section remains after acceptance"
+fi
+
+rule_286="$(rule_block "$OBJECT_DOC" ORKS-RULE-000286)"
+printf '%s\n' "$rule_286" | grep -Fq '`9007199254740991`' || \
+  fail "source byte length is not narrowed to the accepted JSON exact-integer maximum"
+if printf '%s\n' "$rule_286" | grep -Fq '18446744073709551615'; then
+  fail "source byte length retains the non-interoperable unsigned 64-bit maximum"
+fi
+
 grep -Fq \
   'orks-ref:logical-object:v1:01890f7c-2c00-7abc-8def-0123456789ab' \
   "$IDENTITY_DOC" || fail "canonical UUIDv7 identity example is missing"
-grep -Fq 'must preserve component' "$IDENTITY_DOC" || \
+grep -Fq 'accepted ORKS-0108 encoding preserves component' "$IDENTITY_DOC" || \
   fail "ambiguous identity-preimage framing example is missing"
 grep -Fq 'same claimed source identifier' "$IDENTITY_DOC" || \
   fail "forced digest-collision example is missing"

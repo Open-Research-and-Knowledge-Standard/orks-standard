@@ -488,8 +488,8 @@ percent escape.
 
 ## Normative Examples
 
-Digest values below are synthetic and do not claim the deferred ORKS-0108
-known-answer calculation.
+Digest values below are synthetic and do not claim the separate ORKS-0108
+known-answer calculations.
 
 ## ORKS-EXAMPLE-000062
 

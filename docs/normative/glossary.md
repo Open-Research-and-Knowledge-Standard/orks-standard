@@ -196,8 +196,8 @@ a second meaning.
 - Permitted aliases: object revision
 - Status: Accepted
 - Definition: One immutable accepted state of a logical object. Revision
-  identity is defined by the portable identity contract; exact byte encoding
-  remains later deterministic-encoding work.
+  identity is defined by the portable identity contract and its applicable
+  deterministic JSON and hashing contract.
 - Disallowed aliases: specification version; edit
 
 ## ORKS-TERM-000018
@@ -366,7 +366,7 @@ a second meaning.
 - Permitted aliases: RFC 8785 canonicalized JSON, when that profile is applicable
 - Status: Accepted
 - Definition: JSON serialized by an identified deterministic canonicalization
-  procedure. Exact ORKS input and digest rules remain ORKS-0108 work.
+  procedure. The accepted ORKS-0108 profile fixes its input and digest rules.
 - Disallowed aliases: canonical knowledge; canonical JSON
 
 ## ORKS-TERM-000036
@@ -890,6 +890,27 @@ a second meaning.
 - Definition: The installation-local serialized authority that revalidates
   expected state and atomically commits accepted canonical-state transitions.
 - Disallowed aliases: reviewer; model; repository writer
+
+## Accepted ORKS-0108 Terms
+
+## ORKS-TERM-000092
+
+- Preferred term: accepted JSON
+- Permitted aliases: ORKS JSON, when the portable JSON input context is explicit
+- Status: Accepted
+- Definition: A strict UTF-8 JSON value that satisfies the ORKS lexical,
+  Unicode-scalar, duplicate-name, lossless-integer, and portable byte-limit
+  requirements before canonicalization.
+- Disallowed aliases: arbitrary JSON; canonicalized JSON; host JSON value
+
+## ORKS-TERM-000093
+
+- Preferred term: identity frame
+- Permitted aliases: framed identity preimage, when the identity context is explicit
+- Status: Accepted
+- Definition: The exact framing label, component count, and length-prefixed
+  semantic component bytes hashed once to derive a digest-based ORKS identity.
+- Disallowed aliases: raw concatenation; canonicalized JSON; digest text
 
 ## Accepted Map Resolution
 
