@@ -8,7 +8,7 @@
 This directory is the home of normative ORKS specification text. This README
 is an informative index and does not define ORKS requirements.
 
-ORKS-0101 through ORKS-0108 accepted draft material targets specification
+ORKS-0101 through ORKS-0109 accepted draft material targets specification
 version `0.1.0`. Draft status does not claim a released ORKS specification or
 released conformance.
 
@@ -25,6 +25,7 @@ released conformance.
 - [Canonical objects, families, and extensions](objects.md)
 - [Revision, review, conflict, and merge](revisions.md)
 - [Deterministic JSON and hashing](deterministic-json.md)
+- [Generated Markdown and edit proposals](projections.md)
 
 ## Content Boundary
 
@@ -75,3 +76,8 @@ Adam accepted planning decision `0017`, Terms 000092 and 000093, and the
 corresponding ORKS-0108 deterministic JSON and hashing draft on 2026-07-19.
 The material remains an unreleased draft targeting specification version
 `0.1.0`.
+
+Adam accepted planning decision `0018`, Terms 000094 through 000096, and the
+corresponding ORKS-0109 generated Markdown and edit-proposal draft on
+2026-07-19. The material remains an unreleased draft targeting specification
+version `0.1.0`.

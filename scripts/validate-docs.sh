@@ -39,6 +39,7 @@ REQUIRED_PATHS=(
   docs/informative/orks-0106-traceability.md
   docs/informative/orks-0107-traceability.md
   docs/informative/orks-0108-traceability.md
+  docs/informative/orks-0109-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
   docs/normative/deterministic-json.md
@@ -49,6 +50,7 @@ REQUIRED_PATHS=(
   docs/normative/locators.md
   docs/normative/objects.md
   docs/normative/provenance.md
+  docs/normative/projections.md
   docs/normative/revisions.md
   docs/normative/versioning.md
   scripts/validate-docs.sh
@@ -647,6 +649,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0107-traceability.md"
   elif [ "$number" -le 457 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0108-traceability.md"
+  elif [ "$number" -le 515 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0109-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -675,6 +679,8 @@ while IFS= read -r example; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0107-traceability.md"
   elif [ "$number" -le 170 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0108-traceability.md"
+  elif [ "$number" -le 190 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0109-traceability.md"
   else
     fail "example is outside every allocated task range: $example"
     continue
@@ -687,7 +693,7 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 while IFS= read -r term; do
   [ -n "$term" ] || continue
   number=$((10#${term##*-}))
-  [ "$number" -le 93 ] || \
+  [ "$number" -le 96 ] || \
     fail "controlled term is outside every allocated task range: $term"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
 
@@ -807,6 +813,21 @@ done < <(
   ' "$REPO_ROOT/docs/informative/orks-0108-traceability.md"
 )
 
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0109 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0109-traceability.md"
+)
+
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"
 [ "$(grep -Fxc '  "format": "orks-bundle",' "$BUNDLE_DOC" || true)" -eq 1 ] || \
   fail "minimal bundle example must pin the exact format literal"
@@ -913,7 +934,7 @@ for number in 37 {68..74}; do
     fail "accepted ORKS-0106 term is not marked Accepted: $term"
 done
 
-grep -Fq 'accepted ORKS-0101 through ORKS-0108 draft baselines' "$REPO_ROOT/README.md" || \
+grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' "$REPO_ROOT/README.md" || \
   fail "repository status does not mark ORKS-0106 as accepted"
 grep -Fq 'accepted planning decision `0015`' "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record ORKS-0106 acceptance"
@@ -1048,7 +1069,7 @@ awk '
 ' "$REPO_ROOT/docs/normative/glossary.md" || \
   fail "Terms 000075 through 000091 are not contiguous in the Accepted ORKS-0107 Terms section"
 
-grep -Fq 'accepted ORKS-0101 through ORKS-0108 draft baselines' "$REPO_ROOT/README.md" || \
+grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' "$REPO_ROOT/README.md" || \
   fail "repository status does not mark ORKS-0107 as accepted"
 grep -Fq 'accepted planning decision `0016`' "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record accepted ORKS-0107 decision"
@@ -1155,12 +1176,12 @@ awk '
 ' "$REPO_ROOT/docs/normative/glossary.md" || \
   fail "Terms 000092 and 000093 are not contiguous in the Accepted ORKS-0108 Terms section"
 
-grep -Fq 'accepted ORKS-0101 through ORKS-0108 draft baselines' \
+grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' \
   "$REPO_ROOT/README.md" || fail "repository status does not mark ORKS-0108 as accepted"
 grep -Fq 'Adam accepted planning decision `0017`' \
   "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not record accepted ORKS-0108 decision"
-grep -Fq 'ORKS-0101 through ORKS-0108 accepted draft material' \
+grep -Fq 'ORKS-0101 through ORKS-0109 accepted draft material' \
   "$REPO_ROOT/docs/normative/README.md" || \
   fail "normative index does not include the accepted ORKS-0108 draft baseline"
 grep -Fq '[ORKS-0108 traceability](orks-0108-traceability.md) maps the accepted' \
@@ -1410,6 +1431,164 @@ for literal in \
   printf '%s\n' "$example_95" | grep -Fq "$literal" || \
     fail "authorized byte-export support example is incomplete: $(display_value "$literal")"
 done
+
+PROJECTION_DOC="$REPO_ROOT/docs/normative/projections.md"
+projection_doc_one_line="$(tr '\n' ' ' < "$PROJECTION_DOC")"
+for literal in \
+  '`orks-markdown:v1`' \
+  '<!-- orks-origin:v1:start ' \
+  '<!-- orks-origin:v1:end -->' \
+  '33,554,432 bytes' \
+  '1,024 bytes' \
+  '`orks-view-json-v1`' \
+  '`orks-map-v1`' \
+  '`orks-edit-json-v1`' \
+  '`degraded source reference: exact governed bytes are not preserved`' \
+  '`projection-edit-import`, version `1`' \
+  '`invalid-projection`, `resource-refusal`, `spoofed-marker`, `stale-edit`' \
+  '4ee3972475a4c751509d551fb82fcc3924f2667effb5faf383883deb93168852' \
+  '5b16bba51dbf838a46f8a9aa4615d6825f2dfb2f8fa22a6c02aea93b0e5685fa'; do
+  grep -Fq "$literal" "$PROJECTION_DOC" || \
+    fail "projection contract is missing pinned invariant: $(display_value "$literal")"
+done
+printf '%s\n' "$projection_doc_one_line" | grep -Fq \
+  'When the projected object family is `citation` and its complete verified payload has `preservation` equal to `degraded`, the renderer emits one exact line `degraded source reference: exact governed bytes are not preserved`.' || \
+  fail "projection warning renderer drifted from the exact Rule 000338 text"
+
+while IFS='|' read -r identifier literal; do
+  block="$(rule_block "$PROJECTION_DOC" "$identifier")"
+  block_one_line="$(printf '%s\n' "$block" | tr '\n' ' ')"
+  printf '%s\n' "$block_one_line" | grep -Fq "$literal" || \
+    fail "$identifier is missing its projection invariant: $(display_value "$literal")"
+done <<'EOF'
+ORKS-RULE-000459|six-member immutable revision value
+ORKS-RULE-000460|MUST NOT be an entry of that same origin bundle
+ORKS-RULE-000462|every marker byte
+ORKS-RULE-000464|caller-supplied trusted expected tuple
+ORKS-RULE-000464|exact profile
+ORKS-RULE-000464|trusted local canonical state
+ORKS-RULE-000468|exactly `bundle`, `logical_object`, `profile`, and `revision`
+ORKS-RULE-000471|exactly two occurrences
+ORKS-RULE-000472|No case- or whitespace-folded marker grammar
+ORKS-RULE-000478|lowercase escapes `\u0026`, `\u003c`, and `\u003e`
+ORKS-RULE-000479|only the fixed profile control lines
+ORKS-RULE-000481|protected `orks-map-v1` fenced code block
+ORKS-RULE-000482|target as data rather than as a URI, link, locator, or resolution instruction
+ORKS-RULE-000483|exact ORKS-RULE-000338 degraded warning
+ORKS-RULE-000483|never store it as canonical semantic content
+ORKS-RULE-000484|eight preflight stages
+ORKS-RULE-000488|enforce bundle self-inclusion prohibitions
+ORKS-RULE-000490|recompute its ORKS-0108 revision identifier
+ORKS-RULE-000491|return `stale-edit`
+ORKS-RULE-000491|installation-selected current head
+ORKS-RULE-000492|every protected byte
+ORKS-RULE-000493|exactly `extensions` and `payload`
+ORKS-RULE-000498|method `projection-edit-import`, version `1`
+ORKS-RULE-000497|independently authenticated local caller context
+ORKS-RULE-000500|fresh unique workflow reference
+ORKS-RULE-000502|create no successor candidate
+ORKS-RULE-000505|a newly applicable open conflict returns `semantic-conflict`
+ORKS-RULE-000505|atomically reread and recheck the installation-selected current head
+ORKS-RULE-000506|`invalid-projection`, `resource-refusal`, `spoofed-marker`, `stale-edit`
+ORKS-RULE-000506|`candidate-created`
+ORKS-RULE-000507|Stage one chooses portable `invalid-projection`
+ORKS-RULE-000507|mapping invalid origin structure, semantics, or binding to `spoofed-marker`
+ORKS-RULE-000507|`invalid-edit` before `unsupported` before `resource-refusal`
+ORKS-RULE-000507|semantic equality chooses `unchanged`; a remaining changed edit requiring conflict or merge review chooses `semantic-conflict`
+ORKS-RULE-000508|without partial candidate creation, canonical mutation
+ORKS-RULE-000510|marker spoofing, marker duplication, marker reordering
+ORKS-RULE-000511|duplicated, reordered, renamed, indented
+ORKS-RULE-000512|without echoing marker values
+ORKS-RULE-000513|MUST NOT mutate canonical knowledge
+ORKS-RULE-000514|MUST NOT infer compatibility
+ORKS-RULE-000515|executable schemas, fixtures, implementations, storage
+EOF
+
+example_171="$(awk '
+  $0 == "## ORKS-EXAMPLE-000171" { capture=1 }
+  capture && /^## ORKS-(RULE|EXAMPLE)-/ && $0 != "## ORKS-EXAMPLE-000171" { exit }
+  capture { print }
+' "$PROJECTION_DOC")"
+example_172="$(rule_block "$PROJECTION_DOC" ORKS-EXAMPLE-000172)"
+expected_projection_marker='<!-- orks-origin:v1:start {"bundle":"orks-ref:bundle:v1:sha256:4ee3972475a4c751509d551fb82fcc3924f2667effb5faf383883deb93168852","logical_object":"orks-ref:logical-object:v1:019b0000-0000-7000-8000-000000000001","profile":"orks-markdown:v1","revision":"orks-ref:revision:v1:sha256:3bc6bd1a6ea6c83dc92a9b17462a8314feb822e4ed3c7587a9adcdb8903ebcbd"} -->'
+printf '%s\n' "$example_171" | grep -Fxq -- "$expected_projection_marker" || \
+  fail "Example 000171 exact projection marker drifted"
+projection_171_bytes="$(printf '%s\n' "$example_171" | awk '
+  $0 == "````text" { capture=1; next }
+  capture && $0 == "````" { exit }
+  capture { print }
+' | wc -c | tr -d ' ')"
+[ "$projection_171_bytes" = 1983 ] || \
+  fail "Example 000171 exact projection must contain 1983 bytes"
+projection_171_sha256="$(printf '%s\n' "$example_171" | awk '
+  $0 == "````text" { capture=1; next }
+  capture && $0 == "````" { exit }
+  capture { print }
+' | sha256sum | awk '{ print $1 }')"
+[ "$projection_171_sha256" = 56a82443de8f715e34c1e0739df68fbde3c50bdf4f01fe61b78c4fa3bd42dc59 ] || \
+  fail "Example 000171 exact projection checksum drifted"
+for literal in \
+  '670-byte entry `objects/claim.json`' \
+  '140-byte descriptor' \
+  '920-byte bundle frame' \
+  '1,983-byte projection' \
+  '4ee3972475a4c751509d551fb82fcc3924f2667effb5faf383883deb93168852' \
+  '56a82443de8f715e34c1e0739df68fbde3c50bdf4f01fe61b78c4fa3bd42dc59' \
+  'Independent Python and Node derivations'; do
+  printf '%s\n' "$example_171" | grep -Fq "$literal" || \
+    fail "Example 000171 is missing its exact round-trip vector: $(display_value "$literal")"
+done
+expected_successor_json='{"extensions":[{"critical":false,"dependencies":[],"name":"x.u0123456789abcdef0123456789abcdef.demo","value":{"enabled":true,"rank":1},"version":"1.0.0"}],"format":"orks-object","object_family":"claim","payload":{"text":"The synthetic cedar marker is green."},"provenance":{"producer":{"class":"human","label":"Synthetic editor"},"transformation":{"inputs":["orks-ref:revision:v1:sha256:3bc6bd1a6ea6c83dc92a9b17462a8314feb822e4ed3c7587a9adcdb8903ebcbd"],"method":"projection-edit-import","transformed_at":"2026-07-19T09:00:00Z","version":"1"}},"specification_version":"0.1.0"}'
+printf '%s\n' "$example_172" | grep -Fxq -- "$expected_successor_json" || \
+  fail "Example 000172 exact successor JSON drifted"
+for literal in \
+  '576 bytes' \
+  '725 bytes' \
+  'projection-edit-import' \
+  '5b16bba51dbf838a46f8a9aa4615d6825f2dfb2f8fa22a6c02aea93b0e5685fa' \
+  'Python and Node implementations independently reproduce'; do
+  printf '%s\n' "$example_172" | grep -Fq "$literal" || \
+    fail "Example 000172 is missing its exact candidate vector: $(display_value "$literal")"
+done
+
+for number in {94..96}; do
+  term="ORKS-TERM-$(printf '%06d' "$number")"
+  term_block="$(awk -v heading="## $term" '
+    $0 == heading { capture=1 }
+    capture && /^## / && $0 != heading { exit }
+    capture { print }
+  ' "$REPO_ROOT/docs/normative/glossary.md")"
+  printf '%s\n' "$term_block" | grep -Fxq -- '- Status: Accepted' || \
+    fail "accepted ORKS-0109 term is not marked Accepted: $term"
+done
+
+awk '
+  $0 == "## Accepted ORKS-0109 Terms" { section=1; expected=94; next }
+  section && /^## ORKS-TERM-/ {
+    wanted = sprintf("## ORKS-TERM-%06d", expected)
+    if ($0 != wanted) exit 2
+    if (expected == 96) { found=1; exit }
+    expected++
+    next
+  }
+  section && /^## / { exit 3 }
+  END { if (!found) exit 1 }
+' "$REPO_ROOT/docs/normative/glossary.md" || \
+  fail "Terms 000094 through 000096 are not contiguous in the Accepted ORKS-0109 Terms section"
+
+grep -Fq 'ORKS-0101 through ORKS-0109 draft baselines' \
+  "$REPO_ROOT/README.md" || \
+  fail "repository status does not identify ORKS-0109 as accepted"
+grep -Fq 'Adam accepted planning decision `0018`' \
+  "$REPO_ROOT/docs/normative/README.md" || \
+  fail "normative index does not identify ORKS-0109 as accepted"
+grep -Fq '[ORKS-0109 traceability](orks-0109-traceability.md) maps the accepted' \
+  "$REPO_ROOT/docs/informative/README.md" || \
+  fail "informative index does not identify ORKS-0109 traceability as accepted"
+if grep -Fq '## Proposed ORKS-0109 Terms' \
+  "$REPO_ROOT/docs/normative/glossary.md"; then
+  fail "stale proposed ORKS-0109 term section remains after acceptance"
+fi
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2
