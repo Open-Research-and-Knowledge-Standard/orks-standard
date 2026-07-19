@@ -912,6 +912,40 @@ a second meaning.
   semantic component bytes hashed once to derive a digest-based ORKS identity.
 - Disallowed aliases: raw concatenation; canonicalized JSON; digest text
 
+## Accepted ORKS-0109 Terms
+
+## ORKS-TERM-000094
+
+- Preferred term: projection origin marker
+- Permitted aliases: origin marker, when the generated projection context is
+  explicit
+- Status: Accepted
+- Definition: An untrusted bounded control record in a generated projection
+  that claims its origin bundle, logical object, revision, and projection
+  profile for independent validation against an expected origin context.
+- Disallowed aliases: trusted marker; provenance marker; origin proof
+
+## ORKS-TERM-000095
+
+- Preferred term: editable semantic block
+- Permitted aliases: edit block, when the projection profile is explicit
+- Status: Accepted
+- Definition: The sole bounded accepted-JSON region of an
+  `orks-markdown:v1` projection whose complete `payload` and `extensions`
+  values can become untrusted input to one review proposal.
+- Disallowed aliases: Markdown patch; canonical block; direct edit
+
+## ORKS-TERM-000096
+
+- Preferred term: expected origin context
+- Permitted aliases: expected projection origin
+- Status: Accepted
+- Definition: Trusted local context combining a caller-selected expected
+  origin bundle, logical object, revision, and exact projection profile with
+  the current head independently read from installation canonical state, all
+  independently of every claim carried in projection bytes.
+- Disallowed aliases: marker context; embedded trust; portable authorization
+
 ## Accepted Map Resolution
 
 ## ORKS-TERM-000037
