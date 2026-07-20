@@ -10,7 +10,7 @@ This document assigns one accepted preferred term to each concept used across
 the ORKS specification. The entries bind terminology for this accepted draft
 baseline but have no released normative force while the document remains
 `Draft`. An accepted entry does not silently define the payload, syntax, or
-behavior owned by a later identified Phase 1 task.
+behavior defined by its separately identified normative contract.
 
 An entry marked `Reserved` records a preferred label whose semantic contract
 is not yet accepted. Such a term cannot appear in a conformance rule until its
