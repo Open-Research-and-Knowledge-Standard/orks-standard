@@ -25,11 +25,55 @@ display_value() {
   printf '%q' "$1"
 }
 
+# Vendored Orca capability set.
+#
+# These two install roots are the only project-local agent directories this
+# repository admits, and each admits exactly one SKILL.md per capability
+# directory - nothing deeper, nothing else. Both roots hold real files rather
+# than symlinks, because the symlink and index-mode refusals in section 1 are
+# security controls and are not relaxed for vendored content. The duplication
+# that follows from that is enforced by the both-roots byte comparison in
+# section 7.
+VENDOR_LOCKFILE=skills-lock.json
+VENDOR_SOURCE='ProbablyComputers/orca-baseline'
+
+is_vendored_capability_path() {
+  local relative="$1"
+  local name
+
+  case "$relative" in
+    .agents/skills/*/SKILL.md) name="${relative#.agents/skills/}" ;;
+    .claude/skills/*/SKILL.md) name="${relative#.claude/skills/}" ;;
+    *) return 1 ;;
+  esac
+
+  name="${name%/SKILL.md}"
+  case "$name" in
+    ""|.*|*/*) return 1 ;;
+  esac
+
+  return 0
+}
+
+locked_capability_names() {
+  [ -f "$REPO_ROOT/$VENDOR_LOCKFILE" ] || return 0
+  sed -n 's/^    "\([^"]*\)": {$/\1/p' "$REPO_ROOT/$VENDOR_LOCKFILE"
+}
+
+# `AGENTS.md` and `CLAUDE.md` are generated entry points and `RULES.md` is this
+# repository's authored rules file - authority-chain entry 12. All three are
+# required, because the failure each guards is silence: a generated entry point
+# that was never written leaves an agent with no entry point at all, and an
+# absent `RULES.md` leaves the authority chain naming a file that is not here.
+# `AGENTS.md` was already required before the 2026-08-13 relocation and stays
+# required; the other two are new and are the relocation's other half.
 REQUIRED_PATHS=(
   AGENTS.md
+  CLAUDE.md
   LICENSE
   NOTICE
   README.md
+  RULES.md
   docs/informative/README.md
   docs/informative/orks-0101-traceability.md
   docs/informative/orks-0102-traceability.md
@@ -70,9 +114,13 @@ while IFS= read -r -d '' path; do
     continue
   fi
   case "$relative" in
-    AGENTS.md|LICENSE|NOTICE|README.md|scripts/validate-docs.sh) ;;
+    AGENTS.md|CLAUDE.md|RULES.md|LICENSE|NOTICE|README.md|scripts/validate-docs.sh) ;;
     docs/informative/*.md|docs/normative/*.md) ;;
-    *) fail "file violates the repository content boundary: $(display_path "$path")" ;;
+    "$VENDOR_LOCKFILE") ;;
+    *)
+      is_vendored_capability_path "$relative" || \
+        fail "file violates the repository content boundary: $(display_path "$path")"
+      ;;
   esac
 done < <(
   find "$REPO_ROOT" \
@@ -138,10 +186,25 @@ if ! grep -Fq '[LICENSE](LICENSE)' "$REPO_ROOT/README.md"; then
 fi
 
 printf '3. ASCII text and path names\n'
+command -v iconv >/dev/null 2>&1 || fail "iconv is required to verify vendored capability encoding"
 while IFS= read -r -d '' path; do
   relative="$(relative_path "$path")"
   if ! printf '%s' "$relative" | LC_ALL=C grep -qE '^[ -~]+$'; then
     fail "non-ASCII or control byte in repository path"
+  fi
+  # The ASCII rule is this project's own and applies to authored content. A
+  # vendored capability is compiled by a distribution this repository does not
+  # own and cannot be made ASCII without invalidating its pinned content hash,
+  # so the two install roots are exempt from the ASCII sweep and only from it.
+  # They must still carry no NUL byte and must still be valid UTF-8.
+  if is_vendored_capability_path "$relative"; then
+    if ! LC_ALL=C tr -d '\000' < "$path" | cmp -s - "$path"; then
+      fail "NUL byte in vendored capability: $(display_path "$path")"
+    fi
+    if ! iconv -f UTF-8 -t UTF-8 < "$path" > /dev/null 2>&1; then
+      fail "vendored capability is not valid UTF-8: $(display_path "$path")"
+    fi
+    continue
   fi
   if ! LC_ALL=C tr -d '\011\012\040-\176' < "$path" | cmp -s - /dev/null; then
     fail "non-ASCII or disallowed control byte in: $(display_path "$path")"
@@ -154,6 +217,17 @@ done < <(
 
 printf '4. Markdown links\n'
 while IFS= read -r -d '' markdown; do
+  markdown_relative="$(relative_path "$markdown")"
+  # A compiled capability carries relative links written against the
+  # distribution's own tree, which resolve inside an install root and to
+  # nothing. The exemption below is for that one assertion - target existence -
+  # and for the two install roots only. Every other rule in this section,
+  # including the refusal of links that escape the repository, still applies to
+  # vendored content.
+  vendored_markdown=0
+  if is_vendored_capability_path "$markdown_relative"; then
+    vendored_markdown=1
+  fi
   if grep -Eq '^[[:space:]]*\[[^]]+\]:' "$markdown"; then
     fail "reference-style Markdown links are not supported: $(display_path "$markdown")"
   fi
@@ -196,7 +270,7 @@ while IFS= read -r -d '' markdown; do
         continue
         ;;
     esac
-    [ -e "$resolved" ] || \
+    [ "$vendored_markdown" -eq 1 ] || [ -e "$resolved" ] || \
       fail "broken link in $(display_path "$markdown"): $(display_value "$target")"
   done < <(grep -oE '\[[^][]*\]\([^)]*\)' "$markdown" || true)
 done < <(
@@ -1746,6 +1820,98 @@ integrated_row_count="$(awk '
 grep -Fq 'Every Standard Kernel downgrade fixture must produce refusal' \
   "$REPO_ROOT/docs/informative/orks-0110-traceability.md" || \
   fail "integrated Phase 2 matrix does not pin downgrade refusal"
+
+printf '7. Vendored capability set\n'
+
+if [ -e "$REPO_ROOT/$VENDOR_LOCKFILE" ] || [ -e "$REPO_ROOT/.agents" ] || [ -e "$REPO_ROOT/.claude" ]; then
+  [ -f "$REPO_ROOT/$VENDOR_LOCKFILE" ] || \
+    fail "an install root is present without a regular $VENDOR_LOCKFILE"
+
+  vendor_index_available=0
+  if git -C "$REPO_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    vendor_index_available=1
+  fi
+
+  mapfile -t LOCKED_CAPABILITIES < <(locked_capability_names)
+  locked_count="${#LOCKED_CAPABILITIES[@]}"
+  [ "$locked_count" -gt 0 ] || fail "$VENDOR_LOCKFILE names no capability"
+
+  # Provenance. Every entry must carry remote GitHub provenance from the one
+  # approved distribution, a repository-relative skill path, and a pinned
+  # content hash. No entry may carry a filesystem path or a ref pin: a ref pin
+  # makes one repository's lockfile differ from its siblings' while every other
+  # check still passes.
+  while IFS='|' read -r field_key field_value; do
+    field_count="$(
+      LC_ALL=C grep -Fxc -- "      \"$field_key\": \"$field_value\"," \
+        "$REPO_ROOT/$VENDOR_LOCKFILE" || true
+    )"
+    [ "$field_count" -eq "$locked_count" ] || \
+      fail "$VENDOR_LOCKFILE must declare $field_key as $(display_value "$field_value") for all $locked_count capabilities"
+  done <<VENDOR_PROVENANCE
+source|$VENDOR_SOURCE
+sourceType|github
+VENDOR_PROVENANCE
+
+  for field_key in source sourceType skillPath computedHash; do
+    field_count="$(LC_ALL=C grep -Ec "^      \"$field_key\": " "$REPO_ROOT/$VENDOR_LOCKFILE" || true)"
+    [ "$field_count" -eq "$locked_count" ] || \
+      fail "$VENDOR_LOCKFILE must declare exactly $locked_count $field_key field(s)"
+  done
+
+  hash_count="$(LC_ALL=C grep -Ec '^      "computedHash": "[0-9a-f]{64}"$' "$REPO_ROOT/$VENDOR_LOCKFILE" || true)"
+  [ "$hash_count" -eq "$locked_count" ] || \
+    fail "$VENDOR_LOCKFILE must pin a lowercase 64-hex content hash per capability"
+
+  if LC_ALL=C grep -Eq '^ +"ref": ' "$REPO_ROOT/$VENDOR_LOCKFILE"; then
+    fail "$VENDOR_LOCKFILE must not pin an install ref"
+  fi
+
+  # Exact accounting, both directions, plus byte agreement between the roots.
+  for capability in "${LOCKED_CAPABILITIES[@]}"; do
+    case "$capability" in
+      ""|.*|*/*) fail "$VENDOR_LOCKFILE names an unusable capability: $(display_value "$capability")"; continue ;;
+    esac
+
+    LC_ALL=C grep -Fxq -- "      \"skillPath\": \"skills/$capability/SKILL.md\"," \
+      "$REPO_ROOT/$VENDOR_LOCKFILE" || \
+      fail "$VENDOR_LOCKFILE does not pin the expected skill path for: $capability"
+
+    for root in .agents/skills .claude/skills; do
+      [ -f "$REPO_ROOT/$root/$capability/SKILL.md" ] || \
+        fail "locked capability is absent from an install root: $root/$capability/SKILL.md"
+      if [ "$vendor_index_available" -eq 1 ]; then
+        tracked="$(git -C "$REPO_ROOT" ls-files -- "$root/$capability/SKILL.md" || true)"
+        [ -n "$tracked" ] || \
+          fail "locked capability is not tracked: $root/$capability/SKILL.md"
+      fi
+    done
+
+    cmp -s "$REPO_ROOT/.agents/skills/$capability/SKILL.md" \
+      "$REPO_ROOT/.claude/skills/$capability/SKILL.md" || \
+      fail "install roots disagree for capability: $capability"
+  done
+
+  for root in .agents/skills .claude/skills; do
+    [ -d "$REPO_ROOT/$root" ] || { fail "install root is missing: $root"; continue; }
+    while IFS= read -r entry; do
+      [ -n "$entry" ] || continue
+      found=0
+      for capability in "${LOCKED_CAPABILITIES[@]}"; do
+        [ "$entry" = "$capability" ] || continue
+        found=1
+        break
+      done
+      [ "$found" -eq 1 ] || \
+        fail "install root holds a capability that $VENDOR_LOCKFILE does not name: $root/$entry"
+    done < <(ls -A "$REPO_ROOT/$root")
+  done
+
+  if [ "$vendor_index_available" -eq 1 ]; then
+    lock_tracked="$(git -C "$REPO_ROOT" ls-files -- "$VENDOR_LOCKFILE" || true)"
+    [ -n "$lock_tracked" ] || fail "$VENDOR_LOCKFILE is not tracked"
+  fi
+fi
 
 if [ "$FAILURES" -ne 0 ]; then
   printf 'FAILED: %s validation issue(s)\n' "$FAILURES" >&2
