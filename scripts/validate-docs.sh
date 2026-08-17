@@ -85,6 +85,7 @@ REQUIRED_PATHS=(
   docs/informative/orks-0108-traceability.md
   docs/informative/orks-0109-traceability.md
   docs/informative/orks-0110-traceability.md
+  docs/informative/orks-0111-traceability.md
   docs/normative/README.md
   docs/normative/bundles.md
   docs/normative/compatibility.md
@@ -98,6 +99,7 @@ REQUIRED_PATHS=(
   docs/normative/provenance.md
   docs/normative/projections.md
   docs/normative/revisions.md
+  docs/normative/schema-dialect.md
   docs/normative/versioning.md
   scripts/validate-docs.sh
 )
@@ -729,6 +731,8 @@ while IFS= read -r rule; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0109-traceability.md"
   elif [ "$number" -le 585 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0110-traceability.md"
+  elif [ "$number" -le 654 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0111-traceability.md"
   else
     fail "rule is outside every allocated task range: $rule"
     continue
@@ -761,6 +765,8 @@ while IFS= read -r example; do
     expected_trace="$REPO_ROOT/docs/informative/orks-0109-traceability.md"
   elif [ "$number" -le 215 ]; then
     expected_trace="$REPO_ROOT/docs/informative/orks-0110-traceability.md"
+  elif [ "$number" -le 244 ]; then
+    expected_trace="$REPO_ROOT/docs/informative/orks-0111-traceability.md"
   else
     fail "example is outside every allocated task range: $example"
     continue
@@ -773,7 +779,7 @@ done < <(printf '%s\n' "$all_headings" | grep '^ORKS-EXAMPLE-' || true)
 while IFS= read -r term; do
   [ -n "$term" ] || continue
   number=$((10#${term##*-}))
-  [ "$number" -le 105 ] || \
+  [ "$number" -le 111 ] || \
     fail "controlled term is outside every allocated task range: $term"
 done < <(printf '%s\n' "$all_headings" | grep '^ORKS-TERM-' | grep -v '^ORKS-TERM-ISSUE-' || true)
 
@@ -921,6 +927,21 @@ done < <(
       }
     }
   ' "$REPO_ROOT/docs/informative/orks-0110-traceability.md"
+)
+
+while IFS= read -r rule; do
+  [ -z "$rule" ] || \
+    fail "ORKS-0111 traceability must name positive and negative fixture obligations: $rule"
+done < <(
+  awk -F '|' '
+    /^\| ORKS-RULE-[0-9]{6} \|/ {
+      if ($4 !~ /Positive/ || $4 !~ /negative/) {
+        value = $2
+        gsub(/^ +| +$/, "", value)
+        print value
+      }
+    }
+  ' "$REPO_ROOT/docs/informative/orks-0111-traceability.md"
 )
 
 BUNDLE_DOC="$REPO_ROOT/docs/normative/bundles.md"

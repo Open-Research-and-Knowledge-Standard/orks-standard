@@ -47,6 +47,9 @@ that role.
   compatibility, deprecation, migration, downgrade-refusal, mixed-history, and
   round-trip rules to later conformance obligations and integrates the Phase 1
   rule ranges with Phase 2 work.
+- [ORKS-0111 traceability](orks-0111-traceability.md) maps the proposed
+  portable-schema-dialect, regex, and construct-only classifier rules to
+  examples and later conformance obligations. The dialect remains unaccepted.
 
 ## Architecture Decision Ownership
 

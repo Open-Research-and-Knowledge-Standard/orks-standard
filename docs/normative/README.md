@@ -27,6 +27,7 @@ released conformance.
 - [Deterministic JSON and hashing](deterministic-json.md)
 - [Generated Markdown and edit proposals](projections.md)
 - [Compatibility, deprecation, and migration](compatibility.md)
+- [Portable schema dialect](schema-dialect.md)
 
 ## Content Boundary
 
@@ -87,3 +88,7 @@ Adam accepted planning decision `0019`, Terms 000097 through 000105, and the
 corresponding ORKS-0110 compatibility, deprecation, and migration draft on
 2026-07-20. The complete Phase 1 Standard Kernel remains an unreleased draft
 targeting specification version `0.1.0`.
+
+Planning decision `0051` authorized the bounded ORKS-0111 portable-schema-
+dialect draft. Terms 000106 through 000111 and Rules 000586 through 000654
+remain proposed. The dialect is not accepted.
