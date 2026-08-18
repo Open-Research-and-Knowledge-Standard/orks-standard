@@ -4,10 +4,10 @@
 - Status: Draft
 - Target specification version: 0.1.0
 
-This document maps the proposed ORKS-0111 portable-schema-dialect rules to
-normative examples and future Phase 2 obligations. It does not create,
-change, waive, or accept a conformance requirement. The dialect remains
-unaccepted.
+This document maps the accepted Draft 0.1.0 ORKS-0111 portable-schema-dialect
+rules to normative examples and future Phase 2 obligations. It does not
+create, change, waive, or accept a conformance requirement. No official
+partition is adopted.
 
 | Rule | Examples | Phase 2 obligation |
 |---|---|---|

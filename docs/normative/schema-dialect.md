@@ -13,8 +13,10 @@ construct-only classifier contract used to partition the pinned upstream
 suite. The profile name identifies ORKS restrictions layered over the
 standard Draft 2020-12 validation dialect.
 
-This material is a verified draft. It does not accept a released dialect,
-authorize schema authoring, or requalify an engine.
+This material is the accepted Draft 0.1.0 baseline. It remains an
+unreleased draft targeting specification version 0.1.0. It does not
+authorize schema authoring, requalify an engine, or adopt a committed
+partition.
 
 Admitted object-schema member names are:
 

@@ -1036,13 +1036,11 @@ a second meaning.
   has no portable authority to accept knowledge.
 - Disallowed aliases: migrated bundle; accepted migration
 
-## Proposed ORKS-0111 Terms
-
 ## ORKS-TERM-000106
 
 - Preferred term: portable schema dialect
 - Permitted aliases: orks-schema-dialect:2020-12-portable-v1, when the profile identity is explicit
-- Status: Proposed
+- Status: Accepted
 - Definition: The closed authoring-first subset of JSON Schema Draft 2020-12
   that every ORKS-authored schema resource must satisfy.
 - Disallowed aliases: custom vocabulary; ORKS meta-schema
@@ -1051,7 +1049,7 @@ a second meaning.
 
 - Preferred term: construct-only classifier
 - Permitted aliases: dialect classifier
-- Status: Proposed
+- Status: Accepted
 - Definition: The deterministic predicate that assigns each upstream test
   group exactly one of `IN_DIALECT`, `OUT_OF_DIALECT`, or `ERROR` without
   validating instances or calling a candidate engine.
@@ -1061,7 +1059,7 @@ a second meaning.
 
 - Preferred term: dialect partition
 - Permitted aliases: partition record
-- Status: Proposed
+- Status: Accepted
 - Definition: The complete, digest-pinned accounting of every mandatory
   upstream assertion after construct-only classification.
 - Disallowed aliases: qualification report; engine log
@@ -1070,7 +1068,7 @@ a second meaning.
 
 - Preferred term: in-dialect result
 - Permitted aliases: IN_DIALECT
-- Status: Proposed
+- Status: Accepted
 - Definition: The classifier result that every construct in a group's
   complete closure is admitted by the portable schema dialect.
 - Disallowed aliases: pass; included by engine
@@ -1079,7 +1077,7 @@ a second meaning.
 
 - Preferred term: out-of-dialect result
 - Permitted aliases: OUT_OF_DIALECT
-- Status: Proposed
+- Status: Accepted
 - Definition: The classifier result that at least one standard-valid
   construct in a group's closure violates a named dialect rule.
 - Disallowed aliases: fail; excluded by engine
@@ -1088,7 +1086,7 @@ a second meaning.
 
 - Preferred term: classification error
 - Permitted aliases: ERROR, when the classifier context is explicit
-- Status: Proposed
+- Status: Accepted
 - Definition: The classifier result that input integrity or traversal did
   not complete, which blocks the entire partition.
 - Disallowed aliases: out of dialect; skipped
