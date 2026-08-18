@@ -34,19 +34,82 @@ vocabulary, and annotation-only members such as `$comment`, `title`,
 `description`, `default`, `deprecated`, `readOnly`, `writeOnly`, and
 `examples`.
 
+## Keyword table
+
+Each admitted member has exactly one value shape. Schema-bearing children
+are the only nested values the classifier walks as schemas. `none` means
+the value is data or a non-schema control.
+
+| Keyword | Value shape | Schema-bearing children |
+|---|---|---|
+| `$schema` | JSON string equal to the standard Draft 2020-12 URI | none |
+| `$id` | JSON string URI reference | none |
+| `$anchor` | JSON string matching the Draft 2020-12 anchor grammar | none |
+| `$ref` | JSON string URI reference | none; the resolved resource is walked as a resource |
+| `$defs` | object whose every member value is a schema | every member value |
+| `allOf`, `anyOf`, `oneOf`, `prefixItems` | nonempty array of schemas | every array element |
+| `not`, `if`, `then`, `else`, `propertyNames` | one schema | that value |
+| `items`, `additionalProperties` | one schema | that value |
+| `dependentSchemas` | object whose every member value is a schema | every member value |
+| `properties` | object whose every member value is a schema | every member value |
+| `patternProperties` | object whose every member name is a search-pattern or prefix-pattern and whose every member value is a schema | every member value |
+| `type` | one admitted type name, or a unique ASCII-sorted nonempty array of those names | none |
+| `enum` | nonempty array of JSON values unique under accepted JSON equality | none |
+| `const` | one JSON value | none |
+| `maximum`, `exclusiveMaximum`, `minimum`, `exclusiveMinimum` | safe integer | none |
+| `maxLength`, `minLength`, `maxItems`, `minItems`, `maxProperties`, `minProperties` | safe integer greater than or equal to 0 | none |
+| `pattern` | JSON string matching search-pattern or prefix-pattern; whole-pattern only as this member inside the 000631 wrapper | none |
+| `uniqueItems` | JSON boolean; `maxItems` required at the same location | none |
+| `required` | nonempty array of unique JSON strings | none |
+| `dependentRequired` | object whose every member value is an array of unique JSON strings | none |
+
+## Pattern grammar
+
 Pattern productions over the decoded string:
 
 ```text
 search-pattern = sequence ;
 prefix-pattern = "^", sequence ;
-whole-pattern  = "^", sequence, "$";
+whole-pattern  = "^", sequence, "$" ;
 guard-pattern  = "[^ -~]" ;
-sequence      = piece, { piece } ;
-piece         = atom, [ repetition ] ;
-atom          = literal | escaped-literal | character-class ;
-repetition    = "?" | "{", count, "}" |
-                "{", count, ",", count, "}" ;
+sequence       = piece, { piece } ;
+piece          = atom, [ repetition ] ;
+atom           = literal | escaped-literal | character-class ;
+repetition     = "?" | "{", count, "}" |
+                 "{", count, ",", count, "}" ;
+count           = "0" | nonzero-digit, { digit } ;
+nonzero-digit   = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+digit           = "0" | nonzero-digit ;
+character-class = "[", [ "^" ], class-item, { class-item }, "]" ;
+class-item      = class-literal | class-escape | class-range ;
+class-range     = range-endpoint, "-", range-endpoint ;
+range-endpoint  = class-literal | class-escape ;
+class-escape    = escaped-literal ;
+escaped-literal = "\\", escaped-char ;
+escaped-char    = "." | "^" | "$" | "*" | "+" | "?" | "{" | "}" |
+                  "[" | "]" | "(" | ")" | "|" | "\\" ;
+literal         = ? printable ASCII except regex metacharacters and "." ? ;
+class-literal   = ? printable ASCII except "\\", "]", and a range "-" ? ;
 ```
+
+Escaped-literal table (the only admitted escapes):
+
+| Escape | Meaning |
+|---|---|
+| `\\` | reverse solidus |
+| `\.` | full stop |
+| `\^` | circumflex |
+| `\$` | dollar sign |
+| `\*` | asterisk |
+| `\+` | plus sign |
+| `\?` | question mark |
+| `\{` | left curly bracket |
+| `\}` | right curly bracket |
+| `\[` | left square bracket |
+| `\]` | right square bracket |
+| `\(` | left parenthesis |
+| `\)` | right parenthesis |
+| `\|` | vertical line |
 
 The printable-ASCII guard object is exactly the object whose only member
 is `not` whose value is an object whose only member is `pattern` whose
@@ -75,7 +138,7 @@ object whose only member is `pattern` whose value is a `whole-pattern`.
 
 ## ORKS-RULE-000591
 
-**Requirement:** An object schema in an ORKS-authored resource MUST use only the admitted member names enumerated by this profile.
+**Requirement:** An object schema in an ORKS-authored resource MUST use only the admitted member names with the value shapes listed in the Keyword table.
 
 ## ORKS-RULE-000592
 
@@ -155,7 +218,7 @@ object whose only member is `pattern` whose value is a `whole-pattern`.
 
 ## ORKS-RULE-000611
 
-**Requirement:** A schema array or single-schema applicator MUST be traversed only at its specified schema-bearing locations.
+**Requirement:** A schema array or single-schema applicator MUST be traversed only at the schema-bearing child locations listed in the Keyword table.
 
 ## ORKS-RULE-000612
 
@@ -459,7 +522,7 @@ The patterns `abc` and `^abc` match the admitted productions and stay within 256
 
 - Classification: Valid
 - Normative status: Normative example
-- Related rules: ORKS-RULE-000630, ORKS-RULE-000631
+- Related rules: ORKS-RULE-000630, ORKS-RULE-000631, ORKS-RULE-000632
 - Expected outcome: The exact guard and whole-pattern wrapper is admitted
 
 A two-element `allOf` whose first element is the printable-ASCII guard object and whose second element is a whole-pattern object is the only admitted whole-string form.
@@ -468,7 +531,7 @@ A two-element `allOf` whose first element is the printable-ASCII guard object an
 
 - Classification: Invalid
 - Normative status: Normative example
-- Related rules: ORKS-RULE-000631
+- Related rules: ORKS-RULE-000632
 - Expected outcome: A lone guard-pattern is refused
 
 A `pattern` whose value is the guard production, outside the exact wrapper, is prohibited.
@@ -531,7 +594,7 @@ A reference that cannot be resolved from the closed registry yields `ERROR` and 
 
 - Classification: Security
 - Normative status: Normative example
-- Related rules: ORKS-RULE-000632, ORKS-RULE-000633, ORKS-RULE-000634
+- Related rules: ORKS-RULE-000633, ORKS-RULE-000634, ORKS-RULE-000635
 - Expected outcome: An engine compile failure is not out of dialect
 
 An admitted pattern that a candidate engine rejects remains in dialect. The failure is an engine qualification failure.
