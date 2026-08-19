@@ -116,7 +116,7 @@ while IFS= read -r -d '' path; do
     continue
   fi
   case "$relative" in
-    AGENTS.md|CLAUDE.md|RULES.md|LICENSE|NOTICE|README.md|scripts/validate-docs.sh) ;;
+    AGENTS.md|CLAUDE.md|RULES.md|LICENSE|NOTICE|README.md|.gitignore|scripts/validate-docs.sh) ;;
     docs/informative/*.md|docs/normative/*.md) ;;
     "$VENDOR_LOCKFILE") ;;
     *)
