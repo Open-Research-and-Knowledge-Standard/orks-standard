@@ -1,7 +1,7 @@
 # ORKS Standard Instructions
 
 You are working in `orks-standard`, the public normative specification
-repository for the Open Research and Knowledge Standard.
+repository for the Open Research & Knowledge System.
 
 This document carries only what is true of this repository alone. Session start,
 closeout, and project-wide work rules are owned elsewhere and are referenced
@@ -14,7 +14,8 @@ below rather than restated here.
   there; it is not restated here.
 - Keep JSON Schemas, executable fixtures, validators, and conformance reports
   in `orks-conformance`.
-- Keep Rust implementation and implementation-local tests in `orks-harness`.
+- Keep product Runtime implementation and implementation-local tests in
+  `orks-runtime`.
 - Keep installation profiles, private knowledge, runtime state, and local
   bindings out of every normative artifact.
 
