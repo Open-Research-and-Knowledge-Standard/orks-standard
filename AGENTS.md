@@ -1,7 +1,7 @@
 ---
 type: runtime-guidance
 title: orks-standard - agent entry point
-description: Generated entry point for orks-standard, part of ORKS (Open Research and Knowledge Standard). Roles: standards. Access: read-write.
+description: Generated entry point for orks-standard, part of ORKS (Open Research & Knowledge System). Roles: standards. Access: read-write.
 resource: orks-standard/AGENTS.md
 generated: true
 authoritative: false
@@ -13,7 +13,7 @@ edit: unsafe - regenerated, and edits fix nothing upstream
 
 # orks-standard
 
-Part of **ORKS (Open Research and Knowledge Standard)**. Roles: `standards`.
+Part of **ORKS (Open Research & Knowledge System)**. Roles: `standards`.
 Access this session: **read-write**.
 
 The project profile is authoritative. It is held in a repository that is not
